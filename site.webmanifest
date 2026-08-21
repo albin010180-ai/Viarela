@@ -1,0 +1,9 @@
+{
+  "name": "Viarela",
+  "short_name": "Viarela",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBFAF7",
+  "theme_color": "#0A335A",
+  "icons": []
+}
