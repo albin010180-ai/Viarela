@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Viarela Yönetim Paneli</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0A335A">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/styles.css">
+<link rel="stylesheet" href="../assets/admin.css">
+</head>
+<body class="admin-body">
+
+<div id="view-login" class="auth-wrap" hidden>
+  <form id="login-form" class="auth-card">
+    <img src="/assets/viarela-logo.png" alt="Viarela" style="height:44px;margin-bottom:18px">
+    <h1 style="margin:0 0 20px;font-size:1.5rem;color:var(--blue)">Yönetim Paneli</h1>
+    <label>E-posta<input type="email" id="login-email" required autocomplete="username"></label>
+    <label>Şifre<input type="password" id="login-password" required autocomplete="current-password"></label>
+    <button class="btn btn-primary" type="submit" style="width:100%;margin-top:18px">Giriş yap</button>
+    <p id="login-error" class="auth-error" hidden></p>
+    <p class="auth-hint muted">Yalnızca yetkili personel erişebilir. Girişler Supabase Auth ile doğrulanır.</p>
+  </form>
+</div>
+
+<div id="view-fatal" hidden></div>
+
+<div id="view-dash" hidden>
+  <header class="admin-topbar">
+    <div class="container">
+      <img src="/assets/viarela-logo-header.png" alt="Viarela">
+      <span class="admin-title">Vaka Bildirimleri</span>
+      <span class="admin-spacer"></span>
+      <button class="icon-btn" id="btn-refresh" title="Yenile">⟳</button>
+      <button class="icon-btn" id="btn-bell" title="Yeni başvurular">🔔<span class="badge-dot" id="bell-badge" hidden>0</span></button>
+      <button class="icon-btn" id="btn-logout" title="Çıkış">⎋</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="stat-grid">
+      <div class="stat-card is-new"><small>Yeni bildirim</small><strong id="st-new">0</strong></div>
+      <div class="stat-card"><small>Bugün gelen</small><strong id="st-today">0</strong></div>
+      <div class="stat-card"><small>İletişim kuruldu</small><strong id="st-contacted">0</strong></div>
+      <div class="stat-card"><small>Toplam vaka</small><strong id="st-total">0</strong></div>
+    </section>
+
+    <section class="admin-filters">
+      <button class="tab-btn is-on" data-filter="all">Tümü</button>
+      <button class="tab-btn" data-filter="new">Yeni</button>
+      <button class="tab-btn" data-filter="read">Okundu</button>
+      <button class="tab-btn" data-filter="contacted">İletişim kuruldu</button>
+      <button class="tab-btn" data-filter="archived">Arşiv</button>
+      <input class="admin-search" id="case-search" placeholder="İsim, ülke, mesaj ara...">
+    </section>
+
+    <section class="case-table-wrap">
+      <table class="cases">
+        <thead><tr><th>Durum</th><th>Ad Soyad</th><th>Hedef Ülke</th><th>Paket</th><th>Hizmet</th><th>İletişim</th><th>Tarih</th></tr></thead>
+        <tbody id="case-rows"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" hidden>Henüz kayıt yok. Form gönderimleri burada anında görünür.</div>
+    </section>
+  </main>
+</div>
+
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <h2 id="d-name">—</h2>
+    <button class="icon-btn" id="d-close" title="Kapat" style="background:var(--soft);color:var(--blue)">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div class="drawer-actions" id="d-status-btns"></div>
+    <dl class="kv" id="d-kv"></dl>
+    <strong style="display:block;margin-bottom:8px;color:var(--blue)">Vaka özeti</strong>
+    <div class="msg-box" id="d-msg"></div>
+    <button class="danger-btn" id="d-delete">Kaydı sil</button>
+  </div>
+</aside>
+
+<div class="toast-zone" id="toast-zone"></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const $ = s => document.querySelector(s);
+const STATUS_LABEL = { new: 'Yeni', read: 'Okundu', contacted: 'İletişim kuruldu', archived: 'Arşiv' };
+const state = { rows: [], filter: 'all', q: '', current: null };
+let sb;
+
+function fatal(html) {
+  $('#view-login').hidden = true; $('#view-dash').hidden = true;
+  const f = $('#view-fatal'); f.hidden = false;
+  f.innerHTML = `<div class="fatal">${html}</div>`;
+}
+
+async function init() {
+  let cfg;
+  try {
+    const r = await fetch('/api/config');
+    if (!r.ok) throw new Error();
+    cfg = await r.json();
+    sb = createClient(cfg.url, cfg.anonKey);
+  } catch {
+    return fatal('<strong>Sunucu yapılandırması eksik.</strong><br>Vercel > Settings > Environment Variables altında <code>SUPABASE_URL</code> ve <code>SUPABASE_ANON_KEY</code> tanımlanmalı.');
+  }
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) enter(); else { $('#view-login').hidden = false; }
+}
+
+$('#login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = $('#login-error'); err.hidden = true;
+  const { error } = await sb.auth.signInWithPassword({
+    email: $('#login-email').value.trim(),
+    password: $('#login-password').value
+  });
+  if (error) { err.textContent = 'Giriş başarısız: ' + error.message; err.hidden = false; return; }
+  enter();
+});
+
+$('#btn-logout').addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); });
+$('#btn-refresh').addEventListener('click', load);
+
+function enter() {
+  $('#view-login').hidden = true; $('#view-dash').hidden = false;
+  load();
+  subscribe();
+  setInterval(load, 30000);
+}
+
+async function load() {
+  const { data, error } = await sb.from('case_assessments')
+    .select('*').order('created_at', { ascending: false }).limit(300);
+  if (error) {
+    if (error.code === 'PGRST301' || /RLS|policy|permission/i.test(error.message)) {
+      fatal('<strong>Erişim reddedildi.</strong><br>supabase/schema.sql içindeki RLS politikalarını çalıştırdığınızdan ve kullanıcının Supabase Auth > Users altında oluşturulduğundan emin olun.');
+      return;
+    }
+    console.error(error); return;
+  }
+  state.rows = data || [];
+  render();
+}
+
+function subscribe() {
+  sb.channel('cases-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'case_assessments' }, p => {
+      if (p.eventType === 'INSERT') {
+        state.rows.unshift(p.new);
+        render();
+        toast(p.new);
+      } else if (p.eventType === 'DELETE') {
+        state.rows = state.rows.filter(r => r.id !== p.old.id); render();
+      } else {
+        Object.assign(state.rows.find(r => r.id === p.new.id) || {}, p.new); render();
+      }
+    })
+    .subscribe();
+}
+
+function toast(c) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<strong>🔔 Yeni vaka başvurusu</strong><small>${esc(c.first_name)} ${esc(c.last_name)} · ${esc(c.destination)} · ${esc(c.package || '-')}</small>`;
+  t.addEventListener('click', () => { openDrawer(c); t.remove(); });
+  $('#toast-zone').appendChild(t);
+  setTimeout(() => t.remove(), 9000);
+  if (Notification && Notification.permission === 'granted') {
+    new Notification('Viarela — yeni başvuru', { body: `${c.first_name} ${c.last_name} · ${c.destination}` });
+  }
+}
+
+function esc(s) { return String(s ?? '').replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m])); }
+
+document.querySelectorAll('[data-filter]').forEach(b => b.addEventListener('click', () => {
+  state.filter = b.dataset.filter;
+  document.querySelectorAll('[data-filter]').forEach(x => x.classList.toggle('is-on', x === b));
+  render();
+}));
+$('#case-search').addEventListener('input', e => { state.q = e.target.value.toLowerCase().trim(); render(); });
+
+function filtered() {
+  return state.rows.filter(r =>
+    (state.filter === 'all' || r.status === state.filter) &&
+    (!state.q || [r.first_name, r.last_name, r.nationality, r.destination, r.message, r.phone].join(' ').toLowerCase().includes(state.q))
+  );
+}
+
+function fmtDate(iso) {
+  return new Date(iso).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+function money(n) { return n == null ? '-' : new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n); }
+
+function render() {
+  const rows = filtered();
+  const unread = state.rows.filter(r => r.status === 'new');
+  $('#st-new').textContent = unread.length;
+  $('#st-today').textContent = state.rows.filter(r => new Date(r.created_at).toDateString() === new Date().toDateString()).length;
+  $('#st-contacted').textContent = state.rows.filter(r => r.status === 'contacted').length;
+  $('#st-total').textContent = state.rows.length;
+  const badge = $('#bell-badge');
+  badge.hidden = unread.length === 0; badge.textContent = unread.length;
+
+  $('#empty-state').hidden = rows.length > 0;
+  $('#case-rows').innerHTML = rows.map(r => `
+    <tr class="row ${r.status === 'new' ? 'is-unread' : ''}" data-id="${r.id}">
+      <td><span class="pill ${r.status}">${STATUS_LABEL[r.status] || r.status}</span></td>
+      <td>${esc(r.first_name)} ${esc(r.last_name)}</td>
+      <td>${esc(r.destination)}</td>
+      <td>${esc(r.package || '-')}<br><small class="muted">${money(r.fee)}</small></td>
+      <td>${esc(r.service || '-')}</td>
+      <td>${esc(r.phone || '-')}</td>
+      <td><small>${fmtDate(r.created_at)}</small></td>
+    </tr>`).join('');
+
+  document.querySelectorAll('tr.row').forEach(tr => tr.addEventListener('click', () => {
+    openDrawer(state.rows.find(r => r.id === tr.dataset.id));
+  }));
+}
+
+function openDrawer(c) {
+  if (!c) return;
+  state.current = c;
+  const wasNew = c.status === 'new';
+  $('#d-name').textContent = `${c.first_name} ${c.last_name}`;
+  const kv = [
+    ['Durum', `<span class="pill ${c.status}">${STATUS_LABEL[c.status] || c.status}</span>`],
+    ['Telefon / SimpleX', esc(c.phone || '-')],
+    ['Cinsiyet kimliği', esc(c.gender_identity || '-')],
+    ['İlişki durumu', esc(c.relationship_status || '-')],
+    ['Vatandaşlık', esc(c.nationality)],
+    ['Partner vatandaşlığı', esc(c.partner_nationality || '-')],
+    ['Hedef ülke', esc(c.destination)],
+    ['Paket', `${esc(c.package || '-')} · ${money(c.fee)}`],
+    ['Hizmet', esc(c.service || '-')],
+    ['Önceki ret', esc(c.previous_refusal || '-')],
+    ['Dil', esc(c.lang || '-')],
+    ['Tarih', fmtDate(c.created_at)]
+  ];
+  $('#d-kv').innerHTML = kv.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+  $('#d-msg').textContent = c.message;
+  $('#d-status-btns').innerHTML = Object.entries(STATUS_LABEL).map(([v, l]) =>
+    `<button class="tab-btn ${c.status === v ? 'is-on' : ''}" data-status="${v}">${l}</button>`).join('');
+  document.querySelectorAll('#d-status-btns [data-status]').forEach(b => b.addEventListener('click', () => setStatus(c.id, b.dataset.status)));
+  $('#drawer').classList.add('open');
+  $('#drawer').setAttribute('aria-hidden', 'false');
+  if (wasNew) { c.status = 'read'; setStatus(c.id, 'read', true); }
+}
+
+$('#d-close').addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+function closeDrawer() { $('#drawer').classList.remove('open'); $('#drawer').setAttribute('aria-hidden', 'true'); }
+
+async function setStatus(id, status, silent) {
+  const { error } = await sb.from('case_assessments').update({ status }).eq('id', id);
+  if (error) { console.error(error); return; }
+  const row = state.rows.find(r => r.id === id);
+  if (row) row.status = status;
+  render();
+  if (!silent && state.current?.id === id) openDrawer({ ...state.current, status });
+}
+
+$('#d-delete').addEventListener('click', async () => {
+  const c = state.current; if (!c) return;
+  if (!confirm(`${c.first_name} ${c.last_name} kaydı kalıcı olarak silinsin mi?`)) return;
+  const { error } = await sb.from('case_assessments').delete().eq('id', c.id);
+  if (error) { console.error(error); return; }
+  state.rows = state.rows.filter(r => r.id !== c.id);
+  closeDrawer(); render();
+});
+
+if ('Notification' in window && Notification.permission === 'default') {
+  document.addEventListener('click', function ask() {
+    Notification.requestPermission();
+    document.removeEventListener('click', ask);
+  }, { once: true });
+}
+
+init();
+</script>
+</body>
+</html>

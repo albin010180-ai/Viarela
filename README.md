@@ -12,7 +12,10 @@ Statik HTML/CSS/JS + Vercel Serverless Function (`/api/cases`) + Supabase.
 ├── contact/ consultation/ success-stories/ faq/ legal/
 ├── assets/                 # styles.css, app.js, logolar, bayraklar
 ├── api/cases.js            # Vercel Function → Supabase'e case kaydeder
-├── supabase/schema.sql     # case_assessments tablosu
+├── api/config.js           # Admin panele Supabase bağlantısını verir
+├── admin/                  # Yönetim paneli (giriş + canlı vaka bildirimleri)
+├── assets/admin.css        # Admin panel stilleri
+├── supabase/schema.sql     # case_assessments tablosu + RLS + realtime
 ├── vercel.json             # cleanUrls, cache, güvenlik header'ları
 └── .env.example            # ortam değişkenleri şablonu
 ```
@@ -30,18 +33,30 @@ Statik HTML/CSS/JS + Vercel Serverless Function (`/api/cases`) + Supabase.
 3. Environment Variables ekle:
    - `SUPABASE_URL` = Project URL
    - `SUPABASE_SERVICE_ROLE_KEY` = service_role key
+   - `SUPABASE_ANON_KEY` = anon public key (admin panel için)
 4. Deploy
 
 > `service_role` key yalnızca sunucu tarafında (`api/cases.js`) kullanılır,
-> istemciye asla gönderilmez. Tabloda RLS aktiftir, anon erişim yoktur.
+> istemciye asla gönderilmez. Admin panelde anon key kullanılır; veriler RLS ile korunur.
 
-### 3. Form akışı
+### 3. Admin Panel (`/admin/`)
+Form gönderimleri admin panelde canlı bildirimle listelenir.
+
+1. `supabase/schema.sql`'i SQL Editor'de çalıştır (status kolonları + RLS + realtime ekler)
+2. Supabase Dashboard → Authentication → Users → **Add user** (e-posta + şifre, "Auto Confirm" işaretli)
+3. Vercel'e `SUPABASE_ANON_KEY` env değişkenini ekle, redeploy et
+4. `https://site-adresin/admin/` adresinden giriş yap
+
+Özellikler: canlı bildirim (realtime + toast), durum yönetimi (Yeni/Okundu/İletişim kuruldu/Arşiv),
+arama/filtre, detay çekmecesi, kayıt silme. `/admin/` arama motorlarına kapalıdır (robots.txt + noindex).
+
+### 4. Form akışı
 Danışmanlık formu gönderildiğinde:
 - Özet metin SimpleX için oluşturulur (mevcut akış korunur)
 - Aynı veri `/api/cases` üzerinden `case_assessments` tablosuna kaydedilir
 - Supabase tanımlı değilse form çalışmaya devam eder (sessiz fallback)
 
-### 4. Domain
+### 5. Domain
 Vercel → Settings → Domains → `viarela.com` ekle, DNS kayıtlarını yönlendir.
 
 ## Yerel çalıştırma
