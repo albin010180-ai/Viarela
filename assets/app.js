@@ -94,7 +94,7 @@ if(form){
     const summary=lines.map(([k,v])=>`${k}: ${v||'-'}`).join('\n');
     const box=form.querySelector('.summary-box'); box.classList.add('show'); box.querySelector('pre').textContent=summary; box.dataset.summary=summary;
     const payload={first_name:d.get('first_name'),last_name:d.get('last_name'),phone:d.get('phone'),gender_identity:d.get('gender_identity'),relationship_status:d.get('relationship_status'),nationality:d.get('nationality'),partner_nationality:d.get('partner_nationality'),destination:d.get('destination'),package:q?q.package:null,fee:q?q.fee:null,service:d.get('service'),previous_refusal:d.get('previous_refusal'),message:d.get('message'),website:d.get('website'),lang};
-    try{await fetch('/api/cases',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})}catch(err){}
+    try{await fetch('/api/cases/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})}catch(err){}
   });
   form.querySelector('[data-copy]')?.addEventListener('click',async e=>{
     const box=form.querySelector('.summary-box');
