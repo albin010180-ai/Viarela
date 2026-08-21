@@ -97,7 +97,7 @@ function fatal(html) {
 async function init() {
   let cfg;
   try {
-    const r = await fetch('/api/config');
+    const r = await fetch('/api/config/');
     if (!r.ok) throw new Error();
     cfg = await r.json();
     sb = createClient(cfg.url, cfg.anonKey);
