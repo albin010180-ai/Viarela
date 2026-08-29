@@ -4,17 +4,8 @@ export const PACKAGES = {
   signature: 15000,
   unity: 20000
 };
-export const RETAINER_PCT = 0.2;
 export const SAFETY_PCT = 3;
 export const VALIDITY_MIN = 30;
-
-export function euroForStage(packageId, stage) {
-  const fee = PACKAGES[packageId];
-  if (!fee) throw new Error('Unknown package');
-  if (stage === 'retainer') return Math.round(fee * RETAINER_PCT);
-  if (stage === 'remainder') return fee - Math.round(fee * RETAINER_PCT);
-  return fee;
-}
 
 let rateCache = { at: 0, value: null };
 export async function xmrEurRate() {

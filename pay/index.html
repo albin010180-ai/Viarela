@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Payment Desk | Viarela</title>
-<meta name="description" content="Settle a Viarela engagement fee in four steps through Binance. No technical knowledge required. Payment follows the written agreement only.">
+<meta name="description" content="Settle the full Viarela engagement fee in a single Monero (XMR) payment. Automatic verification. Payment follows the written agreement only.">
 <meta name="theme-color" content="#0A335A">
 <link rel="canonical" href="https://viarela.com/pay/">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../assets/styles.css">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Viarela">
 <meta property="og:title" content="Payment Desk | Viarela">
-<meta property="og:description" content="Pay like a bank transfer. Four boxes, done.">
+<meta property="og:description" content="One invoice, one payment, automatic confirmation.">
 <meta property="og:image" content="https://viarela.com/assets/og-viarela.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -32,8 +32,8 @@
   <div class="container">
     <div class="breadcrumbs"><a href="/">Home</a> / Pay</div>
     <span class="eyebrow">Payment desk</span>
-    <h1>Like a bank transfer.<span class="blue"> Four boxes, done.</span></h1>
-    <p class="lead">You do not need to understand crypto. If Binance is on your phone, you paste an address and type an amount. The only rule: never change the network.</p>
+    <h1>Like a bank transfer.<span class="blue"> One invoice, done.</span></h1>
+    <p class="lead">The full package fee is settled in a single Monero (XMR) payment. You do not need to understand crypto: the desk quotes the exact amount, you send it, and confirmation is automatic.</p>
   </div>
 </section>
 
@@ -49,48 +49,32 @@
         <article>
           <span>1</span>
           <div>
-            <h3>Open Binance</h3>
-            <p>Install it if needed. Have your balance ready. Another exchange is fine; look for <em>Send / Withdraw</em>.</p>
+            <h3>Create the invoice</h3>
+            <p>Pick your package on the card. The desk quotes the full package fee in Monero (XMR) at the live rate. The invoice is valid for roughly 30 minutes.</p>
           </div>
         </article>
         <article>
           <span>2</span>
           <div>
-            <h3>USDT only, TRC20 locked</h3>
-            <p>Asset: <strong>USDT</strong>. Network: <strong>TRC20</strong> only. If you see ERC20, BEP20 or Bitcoin, stop. The wrong network does not arrive.</p>
+            <h3>Send the exact amount</h3>
+            <p>Open any Monero wallet, paste the invoice address and send the exact XMR amount shown. A QR code is there as well. No network choice: Monero has one network.</p>
           </div>
         </article>
         <article>
           <span>3</span>
           <div>
-            <h3>Paste, amount, send</h3>
-            <p>Copy the address below. Do not type it. Copy the amount too. Send. Confirmation can take a few minutes.</p>
-          </div>
-        </article>
-        <article>
-          <span>4</span>
-          <div>
-            <h3>Send the receipt on SimpleX</h3>
-            <p>Screenshot plus the “I paid” note. Work does not start until the amount is visible on the Viarela wallet.</p>
+            <h3>Confirmation is automatic</h3>
+            <p>Your transfer is verified on the Monero blockchain. The invoice turns into “Payment credited”, your box updates on SimpleX — no receipt needed.</p>
           </div>
         </article>
       </div>
 
       <div class="pay-help">
-        <p><strong>One-line translation:</strong> Address = IBAN. TRC20 = bank name. USDT = currency. QR = barcode. That is the whole system.</p>
+        <p><strong>One-line translation:</strong> Address = IBAN. XMR = currency. QR = barcode. Send only on the Monero network. That is the whole system.</p>
       </div>
     </div>
 
     <aside class="pay-card">
-      <div class="pay-lock" data-pay-lock>
-        <strong>Address not live yet</strong>
-        The pay-to address is published with the written engagement. Learn the method now; send funds only after the contract.
-      </div>
-      <div data-pay-live hidden>
-        <span class="eyebrow">Pay to</span>
-        <div class="pay-qr-wrap"><img data-pay-qr alt="Payment QR code" width="240" height="240"></div>
-      </div>
-
       <label>Package</label>
       <div class="pay-pills">
         <button type="button" class="is-on" data-pack="horizon">Horizon</button>
@@ -99,57 +83,11 @@
         <button type="button" data-pack="unity">Unity</button>
       </div>
 
-      <label>This transfer covers</label>
-      <div class="pay-pills">
-        <button type="button" class="is-on" data-stage="retainer">Start 20%</button>
-        <button type="button" data-stage="remainder">Balance</button>
-        <button type="button" data-stage="full">Full package</button>
-      </div>
-      <p class="note">Professional sequence: retainer opens the file; the balance is due before the official filing.</p>
-
-      <div class="pay-totals">
-        <div><small>Engagement fee</small><strong data-pay-eur>—</strong></div>
-        <div><small>Amount to enter in Binance</small><strong data-pay-usdt>—</strong></div>
-      </div>
-      <p class="note" data-pay-rate></p>
-      <button class="btn btn-secondary" type="button" data-copy-amount>Copy amount</button>
-
-      <div class="pay-row">
-        <span>Asset</span>
-        <strong>USDT</strong>
-      </div>
-      <div class="pay-row pay-row-warn">
-        <span>Network (do not change)</span>
-        <strong>TRC20</strong>
-        <button class="btn btn-secondary" type="button" data-copy-network>Copy</button>
-      </div>
-      <div class="pay-address">
-        <span>Paste this address</span>
-        <code data-pay-address></code>
-        <button class="btn btn-primary" type="button" data-copy-address>Copy address</button>
-      </div>
-
-      <div class="field">
-        <label>Your name (receipt note)</label>
-        <input name="pay_name" required placeholder="Name on the agreement">
-      </div>
-      <button class="btn btn-dark" type="button" data-confirm-pay>I paid — create notice</button>
-
-      <div class="summary-box" data-pay-done hidden>
-        <strong>Payment notice ready.</strong>
-        <p>Copied. Paste it into SimpleX and attach the screenshot.</p>
-        <pre data-pay-notice style="white-space:pre-wrap;font:inherit"></pre>
-        <a class="btn btn-primary" href="https://smp19.simplex.im/a#o7JePoRgFSCSF5EaJJcJ8gG2a7CzrOLaeo9aVU3rliE" target="_blank" rel="noopener noreferrer">Open SimpleX</a>
-      </div>
-    <aside class="pay-card pay-card-xmr">
-      <span class="eyebrow">Alternative settlement</span>
-      <h3>Pay in Monero (XMR)</h3>
-      <p class="note">Same package and stage chosen above. The invoice is locked for 30 minutes and confirmation is automatic.</p>
       <button class="btn btn-dark" type="button" data-xmr-create>Create Monero invoice</button>
 
       <div data-xmr hidden>
         <div class="pay-totals">
-          <div><small>Invoice (EUR)</small><strong data-xmr-eur>—</strong></div>
+          <div><small>Full package (EUR)</small><strong data-xmr-eur>—</strong></div>
           <div><small>Send this exact amount</small><strong data-xmr-amount>—</strong></div>
         </div>
         <p class="note" data-xmr-rate></p>
@@ -181,8 +119,6 @@
 
 <a class="chat-fab" href="/contact/">Contact</a>
 <script src="../assets/app.js" defer></script>
-<script src="../assets/pay-config.js" defer></script>
 <script src="../assets/pay.js" defer></script>
-<script src="../assets/pay-xmr.js" defer></script>
 </body>
 </html>

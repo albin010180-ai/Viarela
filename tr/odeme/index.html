@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ödeme Masası | Viarela</title>
-<meta name="description" content="Viarela hizmet bedelini Binance üzerinden, teknik bilgi olmadan 4 adımda ödeyin. Yazılı sözleşme sonrası güvenli dijital tahsilat.">
+<meta name="description" content="Viarela hizmet bedelinin tamamını tek bir Monero (XMR) ödemesiyle ödeyin. Otomatik doğrulama. Yazılı sözleşme sonrası ödeme.">
 <meta name="theme-color" content="#0A335A">
 <link rel="canonical" href="https://viarela.com/tr/odeme/">
 <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../../assets/styles.css">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Viarela">
 <meta property="og:title" content="Ödeme Masası | Viarela">
-<meta property="og:description" content="Teknik bilgi gerekmez. Binance’ten IBAN gönderir gibi ödeyin.">
+<meta property="og:description" content="Tek fatura, tek ödeme, otomatik onay.">
 <meta property="og:image" content="https://viarela.com/assets/og-viarela.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -32,8 +32,8 @@
   <div class="container">
     <div class="breadcrumbs"><a href="/tr/">Ana Sayfa</a> / Ödeme</div>
     <span class="eyebrow">Ödeme masası</span>
-    <h1>Banka havalesi gibi.<span class="blue"> Dört kutu, bitti.</span></h1>
-    <p class="lead">Kripto bilmeniz gerekmez. Telefonda Binance varsa, adresi yapıştırıp tutarı yazmanız yeter. Yanlış “banka”ya (ağa) göndermeyin; o tek kural.</p>
+    <h1>Banka havalesi gibi.<span class="blue"> Tek fatura, bitti.</span></h1>
+    <p class="lead">Paketin tamamı tek bir Monero (XMR) ödemesiyle ödenir. Kripto bilmeniz gerekmez: masa tam tutarı verir, siz gönderirsiniz, onay otomatiktir.</p>
   </div>
 </section>
 
@@ -49,49 +49,32 @@
         <article>
           <span>1</span>
           <div>
-            <h3>Binance’i açın</h3>
-            <p>Yoksa App Store / Play Store’dan indirin. Hesabınız ve bakiyeniz hazır olsun. Paribu veya başka borsa da olur; ekrandaki kelimeler aynıdır: <em>Gönder / Çek</em>.</p>
+            <h3>Faturayı oluşturun</h3>
+            <p>Karttan paketinizi seçin. Masa, canlı kur üzerinden paketin tamamını Monero (XMR) olarak yazar. Fatura yaklaşık 30 dakika geçerlidir.</p>
           </div>
         </article>
         <article>
           <span>2</span>
           <div>
-            <h3>USDT seçin, ağı kilitleyin</h3>
-            <p>Coin olarak yalnızca <strong>USDT</strong>. Ağ olarak yalnızca <strong>TRC20</strong>. Ekranda ERC20, BEP20, Bitcoin görürseniz durun. Yanlış ağ = para ulaşmaz.</p>
+            <h3>Tam tutarı gönderin</h3>
+            <p>Herhangi bir Monero cüzdanını açın, fatura adresini yapıştırın ve görünen XMR tutarını gönderin. QR de mevcut. Ağ seçimi yoktur: Monero’nun tek ağı vardır.</p>
           </div>
         </article>
         <article>
           <span>3</span>
           <div>
-            <h3>Adresi yapıştırın, tutarı yazın, gönderin</h3>
-            <p>Aşağıdaki adresi kopyala ile alın. Elle yazmayın. Tutarı da kopyalayın. Gönder’e basın. Onay birkaç dakika sürebilir.</p>
-          </div>
-        </article>
-        <article>
-          <span>4</span>
-          <div>
-            <h3>Dekontu SimpleX’ten iletin</h3>
-            <p>İşlem ekran görüntüsünü ve aşağıdaki “ödedim” notunu danışmana gönderin. Tutar cüzdanda görünmeden dosya açılmaz.</p>
+            <h3>Onay otomatiktir</h3>
+            <p>Gönderiminiz Monero blok zincirinde doğrulanır. Fatura “Ödendi ✓” olur, SimpleX kutunuz güncellenir — dekont göndermeniz gerekmez.</p>
           </div>
         </article>
       </div>
 
       <div class="pay-help">
-        <p><strong>Bir cümlelik çeviri:</strong> Adres = IBAN. TRC20 = bankanın adı. USDT = ödeme birimi. QR = kâğıttaki barkod. Hepsi bu.</p>
-        <p class="muted">Anlamadıysanız bu sayfayı yanınızdaki birine gösterin. Dört dakika.</p>
+        <p><strong>Bir cümlelik çeviri:</strong> Adres = IBAN. XMR = ödeme birimi. QR = barkod. Yalnızca Monero ağına gönderin. O tek kural.</p>
       </div>
     </div>
 
     <aside class="pay-card">
-      <div class="pay-lock" data-pay-lock>
-        <strong>Adres henüz açık değil</strong>
-        Cüzdan, yazılı sözleşmeyle birlikte buraya işlenir. Şimdi yöntemi öğrenin; tutarı sözleşmeden sonra gönderin.
-      </div>
-      <div data-pay-live hidden>
-        <span class="eyebrow">Gönderilecek yer</span>
-        <div class="pay-qr-wrap"><img data-pay-qr alt="Ödeme QR kodu" width="240" height="240"></div>
-      </div>
-
       <label>Paket</label>
       <div class="pay-pills">
         <button type="button" class="is-on" data-pack="horizon">Horizon</button>
@@ -100,57 +83,11 @@
         <button type="button" data-pack="unity">Unity</button>
       </div>
 
-      <label>Bu transfer ne için?</label>
-      <div class="pay-pills">
-        <button type="button" class="is-on" data-stage="retainer">Başlangıç %20</button>
-        <button type="button" data-stage="remainder">Kalan</button>
-        <button type="button" data-stage="full">Tam paket</button>
-      </div>
-      <p class="note">Profesyonel sıra: önce başlangıç, dosya açılır; kalan, resmi başvuru öncesi.</p>
-
-      <div class="pay-totals">
-        <div><small>Sözleşme bedeli</small><strong data-pay-eur>—</strong></div>
-        <div><small>Binance’e yazılacak tutar</small><strong data-pay-usdt>—</strong></div>
-      </div>
-      <p class="note" data-pay-rate></p>
-      <button class="btn btn-secondary" type="button" data-copy-amount>Tutarı kopyala</button>
-
-      <div class="pay-row">
-        <span>Birim</span>
-        <strong>USDT</strong>
-      </div>
-      <div class="pay-row pay-row-warn">
-        <span>Ağ (banka adı)</span>
-        <strong>TRC20</strong>
-        <button class="btn btn-secondary" type="button" data-copy-network>Kopyala</button>
-      </div>
-      <div class="pay-address">
-        <span>Yapıştırılacak adres</span>
-        <code data-pay-address></code>
-        <button class="btn btn-primary" type="button" data-copy-address>Adresi kopyala</button>
-      </div>
-
-      <div class="field">
-        <label>Adınız soyadınız (dekont notu)</label>
-        <input name="pay_name" required placeholder="Sözleşmedeki isim">
-      </div>
-      <button class="btn btn-dark" type="button" data-confirm-pay>Ödedim — bildirimi oluştur</button>
-
-      <div class="summary-box" data-pay-done hidden>
-        <strong>Ödeme bildiriminiz hazır.</strong>
-        <p>Metin kopyalandı. SimpleX’e yapıştırın, ekran görüntüsünü ekleyin.</p>
-        <pre data-pay-notice style="white-space:pre-wrap;font:inherit"></pre>
-        <a class="btn btn-primary" href="https://smp19.simplex.im/a#o7JePoRgFSCSF5EaJJcJ8gG2a7CzrOLaeo9aVU3rliE" target="_blank" rel="noopener noreferrer">SimpleX’i aç</a>
-      </div>
-    <aside class="pay-card pay-card-xmr">
-      <span class="eyebrow">Alternatif ödeme</span>
-      <h3>Monero (XMR) ile ödeme</h3>
-      <p class="note">Yukarıda seçilen paket ve aşamayı kullanır. Fatura 30 dakika geçerlidir; onay otomatiktir.</p>
       <button class="btn btn-dark" type="button" data-xmr-create>Monero faturası oluştur</button>
 
       <div data-xmr hidden>
         <div class="pay-totals">
-          <div><small>Fatura (EUR)</small><strong data-xmr-eur>—</strong></div>
+          <div><small>Tam paket (EUR)</small><strong data-xmr-eur>—</strong></div>
           <div><small>Bu tutarı gönderin</small><strong data-xmr-amount>—</strong></div>
         </div>
         <p class="note" data-xmr-rate></p>
@@ -182,8 +119,6 @@
 
 <a class="chat-fab" href="/tr/iletisim/">İletişim</a>
 <script src="../../assets/app.js" defer></script>
-<script src="../../assets/pay-config.js" defer></script>
 <script src="../../assets/pay.js" defer></script>
-<script src="../../assets/pay-xmr.js" defer></script>
 </body>
 </html>

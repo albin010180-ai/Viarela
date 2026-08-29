@@ -11,7 +11,7 @@ create table if not exists xmr_address_pool (
   created_at timestamptz not null default now()
 );
 
--- 2. Invoices: one per checkout (package+stage -> XMR amount)
+-- 2. Invoices: one per checkout (single full-package payment -> XMR amount)
 create table if not exists xmr_invoices (
   id uuid primary key default gen_random_uuid(),
   invoice_no text unique not null,
@@ -22,7 +22,7 @@ create table if not exists xmr_invoices (
   fx_rate numeric(12,6) not null,
   safety_pct numeric(6,2) not null default 3.00,
   package_id text not null,
-  stage text not null default 'retainer' check (stage in ('retainer','remainder','full')),
+  stage text not null default 'full' check (stage in ('retainer','remainder','full')),
   status text not null default 'pending' check (status in ('pending','partial','credited','expired','void')),
   confirmations int not null default 0,
   received_amount_xmr numeric(14,8),

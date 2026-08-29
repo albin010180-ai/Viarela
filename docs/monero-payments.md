@@ -65,7 +65,7 @@ wallet-rpc'ye checkout anında ulaşamayız (o yerel/VPS'te). Çözüm → **ön
 3. Havuz azalınca bridge, pool'u yeniden doldurur.
 
 ### 3.2 Fatura oluşturma (Vercel `/api/xmr/invoice`)
-- Girdi: paket + aşama (mevcut `pay-config`'deki yapı: retainer %20 / remainder / full).
+- Girdi: yalnızca paket. Fatura **her zaman paketin tam tutarı** içindir — parçalı (retainer/remainder) akış yok; USDT/TRC20 yöntemi kaldırıldı, XMR tek ödeme kanalıdır.
 - CANLI XMR→EUR kuru (public API, örn. CoinGecko), **+ güvenlik payı** (ör. +%2..3) → `xmr_amount`.
 - Havuzdan adres çek → fatura kaydı (`xmr_invoices`: invoice_id, address, subaddress_index, amount_eur, amount_xmr, fx_rate, status=pending, expires_at).
 - Yanıt: `{address, amount_xmr, amount_eur, qr: "monero:ADDR?tx_amount=XMR..."}` — QR tarayıcıda tutar otomatik dolar.
@@ -113,7 +113,7 @@ Her iki seçenekte de **kod aynı**: `services/monero/xmr-bridge.js` Node servis
 
 - RPC kimlik bilgileri `.env`; service role anahtarı bridge'de (public içine asla).
 - Supabase tabloları **RLS**: anon SELECT yok; yalnızca authenticated (admin) okur/yazar; bridge ise service role ile yazar.
-- Money/eşik kontrolü: beklenenden **az/çok geldiyse** uyarı (over/under-pay alert) — `xmr_payments.expected_amount_xmr` ile karşılaştır, ±%2 tolerans.
+- Money/eşik kontrolü: beklenenden **az/çok geldiyse** uyarı (over/under-pay alert) — `xmr_payments.amount_xmr` ile `xmr_invoices.amount_xmr` karşılaştır, ±%2 tolerans.
 - Checkout yanıtında **expires_at** (örn. 30 dk) + kur toleransı.
 - Tüm id'ler Supabase UUID; geçen veri yalnızca gerekli alanlar (adres, tutar) → şiralık veri yok.
 
@@ -122,14 +122,14 @@ Her iki seçenekte de **kod aynı**: `services/monero/xmr-bridge.js` Node servis
 ## 7. Kod Mimarisi (hangi dosya ne iş yapar)
 
 ```
-api/xmr/invoice.js      Vercel: fatura oluştur (paket+aşama, kur, havuzdan adres)  [GET/POST, anon güvenli]
+api/xmr/invoice.js      Vercel: fatura oluştur (paket → tam tutar, kur, havuzdan adres)  [POST, anon güvenli]
 api/xmr/status.js       Vercel: invoice_id ile durum (pending → credited) — desk tarayıcı poll
 api/xmr/rate.js         Vercel: XMR→EUR kuru (bellek cache, ör. 60 sn)
 services/monero/xmr-bridge.js  Node: wallet-rpc poll, eşleştirme, onay, pool yenileme, Supabase yazma
 services/monero/docker-compose.yml  (opsiyonel) monerod + wallet-rpc
 services/monero/README.md      Windows/VPS kurulum adımları, cüzdan üretim, testnet test
 supabase/schema-xmr.sql   xmr_address_pool, xmr_invoices, xmr_payments + RLS + realtime
-pay/index.html (+tr/)     XMR sekmesi: QR (monero: URI), adres kopyala, durum poll/indicator
+pay/index.html (+tr/)     XMR ödeme kartı (tek tam-paket ödeme): QR (monero: URI), adres kopyala, durum poll
 admin/index.html          XMR ödemeler bölümü: liste, realtime, CSV, tutar mutabakatı
 ```
 

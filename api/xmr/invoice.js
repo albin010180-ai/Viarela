@@ -1,4 +1,4 @@
-import { PACKAGES, euroForStage, SAFETY_PCT, VALIDITY_MIN, xmrEurRate, supabaseJson, requireEnv, randomInvoiceNo } from './_lib.js';
+import { PACKAGES, SAFETY_PCT, VALIDITY_MIN, xmrEurRate, supabaseJson, requireEnv, randomInvoiceNo } from './_lib.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -6,9 +6,7 @@ export default async function handler(req, res) {
 
   const b = req.body || {};
   const packageId = String(b.package_id || '').trim();
-  const stage = String(b.stage || 'retainer').trim();
   if (!PACKAGES[packageId]) return res.status(400).json({ error: 'Unknown package' });
-  if (!['retainer', 'remainder', 'full'].includes(stage)) return res.status(400).json({ error: 'Unknown stage' });
 
   let cfg;
   try {
@@ -24,7 +22,7 @@ export default async function handler(req, res) {
     return res.status(502).json({ error: 'Rate unavailable, please retry' });
   }
 
-  const amountEur = euroForStage(packageId, stage);
+  const amountEur = PACKAGES[packageId];
   const amountXmr = Math.round((amountEur * (1 + SAFETY_PCT / 100) / eurPerXmr) * 1000000) / 1000000;
 
   // Atomically pop one unused subaddress from the pool (RPC in schema-xmr.sql)
@@ -61,7 +59,7 @@ export default async function handler(req, res) {
         fx_rate: eurPerXmr,
         safety_pct: SAFETY_PCT,
         package_id: packageId,
-        stage,
+        stage: 'full',
         expires_at: expiresAt
       })
     });
