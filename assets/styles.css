@@ -424,6 +424,11 @@ footer{margin-top:90px;background:#062c50;color:#fff}
 .pay-address span{display:block;font-size:.78rem;font-weight:850;color:#385068;margin-bottom:8px}
 .pay-address code{display:block;word-break:break-all;font-size:.92rem;line-height:1.45;color:var(--blue);margin-bottom:12px}
 .pay-card .btn{width:100%;margin-top:8px}
+.pay-card-xmr{margin-top:18px}
+.pay-card-xmr h3{font-size:1.05rem;margin:6px 0 4px}
+.pay-card-xmr .note{font-size:.82rem}
+.pay-card-xmr .note.is-ok{color:var(--green,#0a7c3e);font-weight:800}
+.pay-qr-wrap img{display:block}
 .pay-row-warn .btn{width:auto;margin:0;padding:8px 12px;font-size:.8rem}
 @media(max-width:980px){
   .pay-layout{grid-template-columns:1fr}

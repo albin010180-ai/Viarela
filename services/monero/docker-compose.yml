@@ -1,0 +1,30 @@
+services:
+  monerod:
+    image: monero/monero:v0.18.3.4
+    container_name: viarela-monerod
+    restart: unless-stopped
+    command: ["--prune-blockchain", "--rpc-bind-ip=127.0.0.1", "--rpc-bind-port=18081"]
+    volumes:
+      - ./data/monerod:/root/.bitmonero
+
+  wallet-rpc:
+    image: monero/monero:v0.18.3.4
+    container_name: viarela-wallet-rpc
+    restart: unless-stopped
+    depends_on:
+      - monerod
+    # copy viarela-watch wallet files into ./data/watch before first run
+    command: ["monero-wallet-rpc", "--wallet-file", "/watch/viarela-watch", "--rpc-login", "viarela:CHANGE_ME", "--rpc-bind-port", "18283", "--daemon-address", "http://monerod:18081"]
+    volumes:
+      - ./data/watch:/watch
+
+  bridge:
+    image: node:20-slim
+    container_name: viarela-bridge
+    restart: unless-stopped
+    depends_on:
+      - wallet-rpc
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: ["node", "xmr-bridge.js"]

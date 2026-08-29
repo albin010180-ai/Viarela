@@ -141,6 +141,28 @@
         <pre data-pay-notice style="white-space:pre-wrap;font:inherit"></pre>
         <a class="btn btn-primary" href="https://smp19.simplex.im/a#o7JePoRgFSCSF5EaJJcJ8gG2a7CzrOLaeo9aVU3rliE" target="_blank" rel="noopener noreferrer">Open SimpleX</a>
       </div>
+    <aside class="pay-card pay-card-xmr">
+      <span class="eyebrow">Alternative settlement</span>
+      <h3>Pay in Monero (XMR)</h3>
+      <p class="note">Same package and stage chosen above. The invoice is locked for 30 minutes and confirmation is automatic.</p>
+      <button class="btn btn-dark" type="button" data-xmr-create>Create Monero invoice</button>
+
+      <div data-xmr hidden>
+        <div class="pay-totals">
+          <div><small>Invoice (EUR)</small><strong data-xmr-eur>—</strong></div>
+          <div><small>Send this exact amount</small><strong data-xmr-amount>—</strong></div>
+        </div>
+        <p class="note" data-xmr-rate></p>
+        <div class="pay-qr-wrap"><img data-xmr-qr alt="Monero payment QR" width="260" height="260"></div>
+        <div class="pay-address">
+          <span>Paste this address</span>
+          <code data-xmr-address></code>
+          <button class="btn btn-primary" type="button" data-xmr-copy>Copy address</button>
+        </div>
+        <p class="note" data-xmr-expires></p>
+        <p class="note" data-xmr-status>Waiting for payment…</p>
+      </div>
+      <p class="note" data-xmr-error></p>
     </aside>
   </div>
 </section>
@@ -161,5 +183,6 @@
 <script src="../assets/app.js" defer></script>
 <script src="../assets/pay-config.js" defer></script>
 <script src="../assets/pay.js" defer></script>
+<script src="../assets/pay-xmr.js" defer></script>
 </body>
 </html>

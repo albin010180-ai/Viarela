@@ -61,6 +61,27 @@
       </table>
       <div class="empty-state" id="empty-state" hidden>Henüz kayıt yok. Form gönderimleri burada anında görünür.</div>
     </section>
+
+    <section class="xmr-panel">
+      <div class="xmr-head">
+        <h2>Monero Ödemeleri</h2>
+        <button class="btn btn-secondary" id="xmr-csv" type="button">CSV indir</button>
+      </div>
+      <div class="admin-filters">
+        <button class="tab-btn is-on" data-xfilter="all">Tümü</button>
+        <button class="tab-btn" data-xfilter="pending">Bekliyor</button>
+        <button class="tab-btn" data-xfilter="partial">Kısmi</button>
+        <button class="tab-btn" data-xfilter="credited">Ödendi</button>
+        <button class="tab-btn" data-xfilter="expired">Süresi doldu</button>
+      </div>
+      <div class="case-table-wrap">
+        <table class="cases">
+          <thead><tr><th>Fatura</th><th>Paket · Aşama</th><th>EUR</th><th>XMR tutar</th><th>Durum</th><th>Onay</th><th>Tarih</th></tr></thead>
+          <tbody id="xmr-rows"></tbody>
+        </table>
+        <div class="empty-state" id="xmr-empty" hidden>Henüz Monero faturası yok.</div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -85,7 +106,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const $ = s => document.querySelector(s);
 const STATUS_LABEL = { new: 'Yeni', read: 'Okundu', contacted: 'İletişim kuruldu', archived: 'Arşiv' };
-const state = { rows: [], filter: 'all', q: '', current: null };
+const state = { rows: [], filter: 'all', q: '', current: null, xrows: [], xfilter: 'all' };
+const XSTATUS_LABEL = { pending: 'Bekliyor', partial: 'Kısmi', credited: 'Ödendi', expired: 'Süresi doldu', void: 'İptal' };
 let sb;
 
 function fatal(html) {
@@ -125,8 +147,11 @@ $('#btn-refresh').addEventListener('click', load);
 function enter() {
   $('#view-login').hidden = true; $('#view-dash').hidden = false;
   load();
+  loadXmr();
   subscribe();
+  subscribeXmr();
   setInterval(load, 30000);
+  setInterval(loadXmr, 45000);
 }
 
 async function load() {
@@ -158,6 +183,103 @@ function subscribe() {
     })
     .subscribe();
 }
+
+async function loadXmr() {
+  const { data, error } = await sb.from('xmr_invoices')
+    .select('*').order('created_at', { ascending: false }).limit(200);
+  if (error) { console.error(error); return; }
+  state.xrows = data || [];
+  renderXmr();
+}
+
+function subscribeXmr() {
+  sb.channel('xmr-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'xmr_invoices' }, p => {
+      if (p.eventType === 'DELETE') {
+        state.xrows = state.xrows.filter(r => r.id !== p.old.id); renderXmr(); return;
+      }
+      const ix = state.xrows.findIndex(r => r.id === p.new.id);
+      if (ix >= 0) state.xrows[ix] = p.new; else state.xrows.unshift(p.new);
+      renderXmr();
+      if (p.eventType === 'UPDATE' && (p.old.status !== 'credited' && p.new.status === 'credited')) xmrToast(p.new);
+    })
+    .subscribe();
+}
+
+document.querySelectorAll('[data-xfilter]').forEach(b => b.addEventListener('click', () => {
+  state.xfilter = b.dataset.xfilter;
+  document.querySelectorAll('[data-xfilter]').forEach(x => x.classList.toggle('is-on', x === b));
+  renderXmr();
+}));
+
+function xmrToast(inv) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<strong>🔔 Monero ödemesi onaylandı</strong><small>${esc(inv.invoice_no)} · ${money(inv.amount_eur)} · ${inv.amount_xmr} XMR alındı</small>`;
+  $('#toast-zone').appendChild(t);
+  setTimeout(() => t.remove(), 12000);
+  if (Notification && Notification.permission === 'granted') {
+    new Notification('Viarela — XMR ödeme', { body: `${inv.invoice_no} · ${money(inv.amount_eur)} onaylandı` });
+  }
+}
+
+function xStatusLabel(s) { return XSTATUS_LABEL[s] || s; }
+
+function renderXmr() {
+  const rows = state.xrows.filter(r => state.xfilter === 'all' || r.status === state.xfilter);
+  $('#xmr-empty').hidden = rows.length > 0;
+  $('#xmr-rows').innerHTML = rows.map(r => `
+    <tr class="row" data-xid="${r.id}">
+      <td>${esc(r.invoice_no)}</td>
+      <td>${esc(r.package_id)} · ${esc(r.stage)}</td>
+      <td>${money(r.amount_eur)}</td>
+      <td>${r.amount_xmr} XMR${r.received_amount_xmr != null ? `<br><small class="muted">aldı: ${r.received_amount_xmr} XMR</small>` : ''}</td>
+      <td><span class="pill ${r.status}">${xStatusLabel(r.status)}</span></td>
+      <td>${r.confirmations || 0}/10</td>
+      <td><small>${r.tx_hash ? esc(r.tx_hash.slice(0, 12)) + '…' : '—'}<br>${fmtDate(r.created_at)}</small></td>
+    </tr>`).join('');
+  document.querySelectorAll('tr.row[data-xid]').forEach(tr => tr.addEventListener('click', () => openXmrDrawer(state.xrows.find(x => x.id === tr.dataset.xid))));
+}
+
+function openXmrDrawer(inv) {
+  if (!inv) return;
+  state.current = inv;
+  $('#d-name').textContent = inv.invoice_no;
+  const kv = [
+    ['Durum', `<span class="pill ${inv.status}">${xStatusLabel(inv.status)}</span>`],
+    ['Paket', esc(inv.package_id)],
+    ['Aşama', esc(inv.stage)],
+    ['EUR', money(inv.amount_eur)],
+    ['XMR (beklenen)', `${inv.amount_xmr} XMR`],
+    ['Kur', `${inv.fx_rate} EUR/XMR`],
+    ['XMR (alındı)', inv.received_amount_xmr != null ? `${inv.received_amount_xmr} XMR` : '—'],
+    ['Onay', `${inv.confirmations || 0}/10`],
+    ['İşlem', inv.tx_hash ? esc(inv.tx_hash) : '—'],
+    ['Adres', esc(inv.address)],
+    ['Geçerlilik', fmtDate(inv.expires_at)],
+    ['Tarih', fmtDate(inv.created_at)]
+  ];
+  $('#d-kv').innerHTML = kv.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+  $('#d-msg').textContent = '';
+  $('#d-status-btns').innerHTML = '';
+  $('#d-delete').hidden = true;
+  $('#drawer').classList.add('open');
+  $('#drawer').setAttribute('aria-hidden', 'false');
+}
+
+function csvXmr() {
+  if (!state.xrows.length) return;
+  const head = ['invoice_no', 'package', 'stage', 'amount_eur', 'amount_xmr', 'fx_rate', 'status', 'confirmations', 'received_amount_xmr', 'tx_hash', 'address', 'created_at', 'expires_at'];
+  const lines = [head.join(';')];
+  state.xrows.forEach(r => lines.push(head.map(h => `"${String(r[h] ?? '').replace(/"/g, '""')}"`).join(';')));
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'viarela-xmr-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+$('#xmr-csv').addEventListener('click', csvXmr);
 
 function toast(c) {
   const t = document.createElement('div');
@@ -240,6 +362,7 @@ function openDrawer(c) {
   ];
   $('#d-kv').innerHTML = kv.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
   $('#d-msg').textContent = c.message;
+  $('#d-delete').hidden = false;
   $('#d-status-btns').innerHTML = Object.entries(STATUS_LABEL).map(([v, l]) =>
     `<button class="tab-btn ${c.status === v ? 'is-on' : ''}" data-status="${v}">${l}</button>`).join('');
   document.querySelectorAll('#d-status-btns [data-status]').forEach(b => b.addEventListener('click', () => setStatus(c.id, b.dataset.status)));

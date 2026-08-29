@@ -1,0 +1,13 @@
+{
+  "supabaseUrl": "https://gfeigrpzsmfyllmaykdf.supabase.co",
+  "supabaseServiceRoleKey": "",
+  "wallet": {
+    "rpcUrl": "http://127.0.0.1:18283",
+    "username": "viarela",
+    "password": "CHANGE_ME"
+  },
+  "confirmations": 10,
+  "pollIntervalSec": 300,
+  "poolTarget": 50,
+  "poolMin": 10
+}

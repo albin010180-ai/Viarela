@@ -142,6 +142,28 @@
         <pre data-pay-notice style="white-space:pre-wrap;font:inherit"></pre>
         <a class="btn btn-primary" href="https://smp19.simplex.im/a#o7JePoRgFSCSF5EaJJcJ8gG2a7CzrOLaeo9aVU3rliE" target="_blank" rel="noopener noreferrer">SimpleX’i aç</a>
       </div>
+    <aside class="pay-card pay-card-xmr">
+      <span class="eyebrow">Alternatif ödeme</span>
+      <h3>Monero (XMR) ile ödeme</h3>
+      <p class="note">Yukarıda seçilen paket ve aşamayı kullanır. Fatura 30 dakika geçerlidir; onay otomatiktir.</p>
+      <button class="btn btn-dark" type="button" data-xmr-create>Monero faturası oluştur</button>
+
+      <div data-xmr hidden>
+        <div class="pay-totals">
+          <div><small>Fatura (EUR)</small><strong data-xmr-eur>—</strong></div>
+          <div><small>Bu tutarı gönderin</small><strong data-xmr-amount>—</strong></div>
+        </div>
+        <p class="note" data-xmr-rate></p>
+        <div class="pay-qr-wrap"><img data-xmr-qr alt="Monero ödeme QR kodu" width="260" height="260"></div>
+        <div class="pay-address">
+          <span>Yapıştırılacak adres</span>
+          <code data-xmr-address></code>
+          <button class="btn btn-primary" type="button" data-xmr-copy>Adresi kopyala</button>
+        </div>
+        <p class="note" data-xmr-expires></p>
+        <p class="note" data-xmr-status>Ödeme bekleniyor…</p>
+      </div>
+      <p class="note" data-xmr-error></p>
     </aside>
   </div>
 </section>
@@ -162,5 +184,6 @@
 <script src="../../assets/app.js" defer></script>
 <script src="../../assets/pay-config.js" defer></script>
 <script src="../../assets/pay.js" defer></script>
+<script src="../../assets/pay-xmr.js" defer></script>
 </body>
 </html>
