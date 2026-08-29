@@ -131,11 +131,13 @@ async function scanIncoming() {
     const amountXmr = Number(e.amount) / XMR_DIVISOR;
     const conf = Number(e.confirmations ?? 0);
 
-    const invs = await sbGet(`/rest/v1/xmr_invoices?subaddress_index=eq.${idx}&or=(status.eq.pending,status.eq.partial)&select=id,amount_xmr,status,confirmations`);
+    const invs = await sbGet(`/rest/v1/xmr_invoices?subaddress_index=eq.${idx}&or=(status.eq.pending,status.eq.partial)&select=id,amount_xmr,status,confirmations,channel`);
     for (const inv of invs || []) {
+      const isCard = inv.channel === 'card';
       const expected = Number(inv.amount_xmr);
       const within = Math.abs(amountXmr - expected) / expected <= 0.02;
-      const nextStatus = (within || amountXmr >= expected) ? undefined : 'partial';
+      const arrivedEnough = within || amountXmr >= expected;
+      const nextStatus = (isCard || arrivedEnough) ? undefined : 'partial';
       const patch = { confirmations: conf, received_amount_xmr: amountXmr, tx_hash: e.txid };
       if (nextStatus) patch.status = nextStatus;
 
@@ -145,7 +147,7 @@ async function scanIncoming() {
         await sbPost('/rest/v1/xmr_payments', {
           invoice_id: inv.id, tx_hash: e.txid, amount_xmr: amountXmr, confirmations: conf
         }).catch(() => {}); // unique(row) sağlar, tekrar olursa sessiz geç
-        log(`[credit] FATURA ${idx} -> ${amountXmr} XMR onaylandı (tx ${String(e.txid).slice(0, 8)}…)`);
+        log(`[credit] FATURA ${idx}${isCard ? ' (kart)' : ''} -> ${amountXmr} XMR onaylandı (tx ${String(e.txid).slice(0, 8)}…)`);
       } else if (patch.status === 'partial') {
         await sbPatch(`/rest/v1/xmr_invoices?id=eq.${inv.id}`, patch).catch(() => {});
         log(`[warn] FATURA ${idx}: beklenen ${expected} XMR, gelen ${amountXmr} XMR -> partial`);

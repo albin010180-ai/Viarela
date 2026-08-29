@@ -64,7 +64,7 @@
 
     <section class="xmr-panel">
       <div class="xmr-head">
-        <h2>Monero Ödemeleri</h2>
+        <h2>Ödemeler</h2>
         <button class="btn btn-secondary" id="xmr-csv" type="button">CSV indir</button>
       </div>
       <div class="admin-filters">
@@ -76,10 +76,10 @@
       </div>
       <div class="case-table-wrap">
         <table class="cases">
-          <thead><tr><th>Fatura</th><th>Paket · Aşama</th><th>EUR</th><th>XMR tutar</th><th>Durum</th><th>Onay</th><th>Tarih</th></tr></thead>
+          <thead><tr><th>Fatura</th><th>Paket · Aşama</th><th>Kanal</th><th>EUR</th><th>XMR tutar</th><th>Durum</th><th>Onay</th><th>Tarih</th></tr></thead>
           <tbody id="xmr-rows"></tbody>
         </table>
-        <div class="empty-state" id="xmr-empty" hidden>Henüz Monero faturası yok.</div>
+        <div class="empty-state" id="xmr-empty" hidden>Henüz ödeme yok.</div>
       </div>
     </section>
   </main>
@@ -213,17 +213,20 @@ document.querySelectorAll('[data-xfilter]').forEach(b => b.addEventListener('cli
 }));
 
 function xmrToast(inv) {
+  const isCard = inv.channel === 'card';
   const t = document.createElement('div');
   t.className = 'toast';
-  t.innerHTML = `<strong>🔔 Monero ödemesi onaylandı</strong><small>${esc(inv.invoice_no)} · ${money(inv.amount_eur)} · ${inv.amount_xmr} XMR alındı</small>`;
+  t.innerHTML = `<strong>${isCard ? '💳' : '🔔'} ${isCard ? 'Kart ödemesi' : 'Monero ödemesi'} onaylandı</strong><small>${esc(inv.invoice_no)} · ${money(inv.amount_eur)} · ${inv.amount_xmr} XMR cüzdanımıza düştü</small>`;
   $('#toast-zone').appendChild(t);
   setTimeout(() => t.remove(), 12000);
   if (Notification && Notification.permission === 'granted') {
-    new Notification('Viarela — XMR ödeme', { body: `${inv.invoice_no} · ${money(inv.amount_eur)} onaylandı` });
+    new Notification('Viarela — ödeme', { body: `${inv.invoice_no} · ${money(inv.amount_eur)} onaylandı` });
   }
 }
 
 function xStatusLabel(s) { return XSTATUS_LABEL[s] || s; }
+function chLabel(ch) { return ch === 'card' ? 'Kart' : 'XMR'; }
+function chPill(ch) { const k = ch === 'card' ? 'ch-card' : 'ch-xmr'; return `<span class="pill ${k}">${chLabel(ch)}</span>`; }
 
 function renderXmr() {
   const rows = state.xrows.filter(r => state.xfilter === 'all' || r.status === state.xfilter);
@@ -232,6 +235,7 @@ function renderXmr() {
     <tr class="row" data-xid="${r.id}">
       <td>${esc(r.invoice_no)}</td>
       <td>${esc(r.package_id)} · ${esc(r.stage)}</td>
+      <td>${chPill(r.channel)}</td>
       <td>${money(r.amount_eur)}</td>
       <td>${r.amount_xmr} XMR${r.received_amount_xmr != null ? `<br><small class="muted">aldı: ${r.received_amount_xmr} XMR</small>` : ''}</td>
       <td><span class="pill ${r.status}">${xStatusLabel(r.status)}</span></td>
@@ -247,6 +251,7 @@ function openXmrDrawer(inv) {
   $('#d-name').textContent = inv.invoice_no;
   const kv = [
     ['Durum', `<span class="pill ${inv.status}">${xStatusLabel(inv.status)}</span>`],
+    ['Kanal', chPill(inv.channel)],
     ['Paket', esc(inv.package_id)],
     ['Aşama', esc(inv.stage)],
     ['EUR', money(inv.amount_eur)],
@@ -269,7 +274,7 @@ function openXmrDrawer(inv) {
 
 function csvXmr() {
   if (!state.xrows.length) return;
-  const head = ['invoice_no', 'package', 'stage', 'amount_eur', 'amount_xmr', 'fx_rate', 'status', 'confirmations', 'received_amount_xmr', 'tx_hash', 'address', 'created_at', 'expires_at'];
+  const head = ['invoice_no', 'channel', 'package', 'stage', 'amount_eur', 'amount_xmr', 'fx_rate', 'status', 'confirmations', 'received_amount_xmr', 'tx_hash', 'address', 'created_at', 'expires_at'];
   const lines = [head.join(';')];
   state.xrows.forEach(r => lines.push(head.map(h => `"${String(r[h] ?? '').replace(/"/g, '""')}"`).join(';')));
   const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });

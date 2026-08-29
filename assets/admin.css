@@ -41,6 +41,8 @@ tr.is-unread td{font-weight:800}
 .pill.read{background:#E8EEF5;color:var(--blue)}
 .pill.contacted{background:#E3F3EA;color:var(--ok)}
 .pill.archived{background:#EEEAE0;color:var(--warn)}
+.pill.ch-card{background:#FFF0E6;color:#9a4a12}
+.pill.ch-xmr{background:var(--soft);color:var(--blue)}
 .empty-state{padding:48px 24px;text-align:center;color:var(--muted)}
 
 .drawer{position:fixed;top:0;right:0;height:100vh;width:min(520px,100vw);background:#fff;box-shadow:-18px 0 50px rgba(10,21,33,.22);transform:translateX(105%);transition:transform .28s ease;z-index:60;display:flex;flex-direction:column}
