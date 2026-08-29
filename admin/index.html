@@ -213,10 +213,9 @@ document.querySelectorAll('[data-xfilter]').forEach(b => b.addEventListener('cli
 }));
 
 function xmrToast(inv) {
-  const isPsp = inv.channel === 'card' || inv.channel === 'psp';
   const t = document.createElement('div');
   t.className = 'toast';
-  t.innerHTML = `<strong>${isPsp ? '💳' : '🔔'} ${isPsp ? 'Kripto ödemesi' : 'Monero ödemesi'} onaylandı</strong><small>${esc(inv.invoice_no)} · ${money(inv.amount_eur)} · ${inv.amount_xmr} XMR cüzdanımıza düştü</small>`;
+  t.innerHTML = `<strong>🔔 Monero ödemesi onaylandı</strong><small>${esc(inv.invoice_no)} · ${money(inv.amount_eur)} · ${inv.amount_xmr} XMR cüzdanımıza düştü</small>`;
   $('#toast-zone').appendChild(t);
   setTimeout(() => t.remove(), 12000);
   if (Notification && Notification.permission === 'granted') {

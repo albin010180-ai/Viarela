@@ -33,7 +33,7 @@
     <div class="breadcrumbs"><a href="/tr/">Ana Sayfa</a> / Ödeme</div>
     <span class="eyebrow">Ödeme masası</span>
     <h1>Tek fatura.<span class="blue"> Gizlice ödenir.</span></h1>
-    <p class="lead">Monero veya elinizde hangisi varsa herhangi bir büyük kripto para ile ödeyin. Üyelik yok, doğrulama yok, kurulum yok. İki yöntem de tamamen gizlidir ve onay otomatiktir.</p>
+    <p class="lead">Herhangi bir cüzdandan Monero (XMR) ile gizli ödeyin. Üyelik yok, doğrulama yok, kurulum yok. Onay otomatiktir.</p>
   </div>
 </section>
 
@@ -50,14 +50,14 @@
           <span>1</span>
           <div>
             <h3>Faturayı oluşturun</h3>
-            <p>Paketinizi ve ödeme yöntemini seçin. Her fatura, seçtiğiniz yöntemin para biriminde tek tutarı gösterir — başka hiçbir ücret yansımaz.</p>
+            <p>Paketinizi seçin. Her fatura yalnızca sözleşmedeki tutarın XMR karşılığını gösterir — başka hiçbir ücret yansımaz.</p>
           </div>
         </article>
         <article>
           <span>2</span>
           <div>
             <h3>Herhangi bir cüzdandan ödeyin</h3>
-            <p>Monero: fatura adresine tam tutarı gönderin. Diğer kripto: BTC, ETH veya USDT ile ödeyin, dönüşüm otomatik yapılır. İki yol da gizlidir — hesap yok, belge yok.</p>
+            <p>Herhangi bir Monero cüzdanından tam tutarı fatura adresine gönderin. Ödeme gizlidir ve bağlantısızdır — hesap yok, belge yok, izleme yok.</p>
           </div>
         </article>
         <article>
@@ -83,47 +83,25 @@
         <button type="button" data-pack="unity">Unity</button>
       </div>
 
-      <div class="pay-methods">
-        <button type="button" class="is-on" data-method="monero">Monero (XMR)</button>
-        <button type="button" data-method="crypto">Diğer kripto</button>
-      </div>
+      <p class="note">İşlem ücreti yok. Herhangi bir Monero cüzdanından gönderin; onay otomatiktir. Her fatura için taze bir adres üretilir.</p>
+      <button class="btn btn-dark" type="button" data-xmr-create>Monero faturası oluştur</button>
 
-      <div data-panel="monero">
-        <p class="note">İşlem ücreti yok. Herhangi bir Monero cüzdanından gönderin; onay otomatiktir. Her fatura için taze bir adres üretilir.</p>
-        <button class="btn btn-dark" type="button" data-xmr-create>Monero faturası oluştur</button>
-
-        <div data-xmr hidden>
-          <div class="pay-totals">
-            <div><small>Tam paket (EUR)</small><strong data-xmr-eur>—</strong></div>
-            <div><small>Bu tutarı gönderin</small><strong data-xmr-amount>—</strong></div>
-          </div>
-          <p class="note" data-xmr-rate></p>
-          <div class="pay-qr-wrap"><img data-xmr-qr alt="Monero ödeme QR kodu" width="260" height="260"></div>
-          <div class="pay-address">
-            <span>Yapıştırılacak adres</span>
-            <code data-xmr-address></code>
-            <button class="btn btn-primary" type="button" data-xmr-copy>Adresi kopyala</button>
-          </div>
-          <p class="note" data-xmr-expires></p>
-          <p class="note" data-xmr-status>Ödeme bekleniyor…</p>
+      <div data-xmr hidden>
+        <div class="pay-totals">
+          <div><small>Tam paket (EUR)</small><strong data-xmr-eur>—</strong></div>
+          <div><small>Bu tutarı gönderin</small><strong data-xmr-amount>—</strong></div>
         </div>
-        <p class="note" data-xmr-error></p>
-      </div>
-
-      <div data-panel="crypto" hidden>
-        <p class="note" data-crypto-note>BTC, ETH, USDT veya LTC ile ödeyin — gizli, üyelik yok. Dönüşüm otomatik yapılır.</p>
-        <button class="btn btn-dark" type="button" data-crypto-create>BTC / ETH / USDT ile öde</button>
-
-        <div data-crypto-result hidden>
-          <div class="pay-totals">
-            <div><small>Ödeyeceğiniz (EUR)</small><strong data-crypto-total>—</strong></div>
-          </div>
-          <a class="btn btn-primary" data-crypto-url target="_blank" rel="noopener noreferrer">Ödemeyi tamamla →</a>
-          <p class="note" data-crypto-status></p>
-          <p class="note" data-crypto-expires></p>
+        <p class="note" data-xmr-rate></p>
+        <div class="pay-qr-wrap"><img data-xmr-qr alt="Monero ödeme QR kodu" width="260" height="260"></div>
+        <div class="pay-address">
+          <span>Yapıştırılacak adres</span>
+          <code data-xmr-address></code>
+          <button class="btn btn-primary" type="button" data-xmr-copy>Adresi kopyala</button>
         </div>
-        <p class="note" data-crypto-error></p>
+        <p class="note" data-xmr-expires></p>
+        <p class="note" data-xmr-status>Ödeme bekleniyor…</p>
       </div>
+      <p class="note" data-xmr-error></p>
     </aside>
   </div>
 </section>
