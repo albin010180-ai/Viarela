@@ -427,10 +427,7 @@ footer{margin-top:90px;background:#062c50;color:#fff}
 .pay-card h3{font-size:1.05rem;margin:6px 0 4px}
 .pay-card .note{font-size:.9rem;color:var(--muted)}
 .pay-card .note.is-ok{color:var(--green,#0a7c3e);font-weight:800}
-.pay-card .note[data-xmr-error]:not([hidden]),.pay-card .note[data-card-error]:not([hidden]){color:#9b2c2c;font-weight:800;font-size:.86rem}
-.pay-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0 10px}
-.pay-methods button{border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 12px;font-weight:800;color:var(--blue);cursor:pointer}
-.pay-methods button.is-on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pay-card .note[data-card-error]:not([hidden]){color:#9b2c2c;font-weight:800;font-size:.86rem}
 .pay-qr-wrap img{display:block}
 .pay-row-warn .btn{width:auto;margin:0;padding:8px 12px;font-size:.8rem}
 @media(max-width:980px){

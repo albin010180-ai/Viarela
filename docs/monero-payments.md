@@ -152,10 +152,10 @@ Doğrulama akışılar iki katmanlı:
 
 Bu kanal, "müşteri kredi kartıyla öder, para Monero cüzdanına düşer" akışını ekler. Detaylı tasarım için `docs/card-payments.md`'e bak. Özet:
 
-- Müşteri pay desk'te **Kredi kartı** sekmesini seçer → `/api/card/order/` yeni `card_orders` satırı + `channel='card'` fatura üretir.
-- Sağlayıcı (varsayılan **ChangeNOW**, KYB gerekir) fiat ödemeyi alır ve **bizim havuz subaddress'ine** XMR basar.
+- Müşteri pay desk'te tek seçenek olarak **Kredi kartı**nı görür (XMR sekmesi kaldırıldı, müşteriye XMR hiç gösterilmez). `/api/card/order/` yeni `card_orders` satırı + `channel='card'` fatura üretir.
+- Sağlayıcı (varsayılan **ChangeNOW**, tek defalık işletme KYB'si gerekir) fiat ödemeyi alır ve **bizim havuz subaddress'ine** XMR basar.
 - Mevcut **xmr-bridge** bu subaddress'teki XMR'i izler; kart faturalarında **tutara bakmadan onaylanmış (10 onay) varışı kredi sayar** → fatura `credited` olur, SimpleX/admin bildirimi otomatiktir.
-- `NOW_API_KEY` tanımsızken `/api/card/order/` 503 `PROVIDER_NOT_CONFIGURED` döner; desk otomatik olarak Monero sekmesine düşer — kart geçene kadar site zaten bozulmaz.
+- `NOW_API_KEY` tanımsızken `/api/card/order/` 503 `PROVIDER_NOT_CONFIGURED` döner; desk "kart ödemeleri aktifleştiriliyor" notuyla açık kalır (XMR fallback gösterilmez).
 
 ---
 

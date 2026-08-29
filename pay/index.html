@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Payment Desk | Viarela</title>
-<meta name="description" content="Settle the full Viarela engagement fee by credit card or Monero. Funds settle into our Monero wallet with automatic confirmation. Payment follows the written agreement only.">
+<meta name="description" content="Pay the full Viarela engagement fee by credit card. A normal, secure card charge — no sign-up and no extra verification. Confirmation is automatic. Payment follows the written agreement only.">
 <meta name="theme-color" content="#0A335A">
 <link rel="canonical" href="https://viarela.com/pay/">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../assets/styles.css">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Viarela">
 <meta property="og:title" content="Payment Desk | Viarela">
-<meta property="og:description" content="Credit card or Monero. Automatic confirmation.">
+<meta property="og:description" content="Credit card. Automatic confirmation.">
 <meta property="og:image" content="https://viarela.com/assets/og-viarela.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -32,8 +32,8 @@
   <div class="container">
     <div class="breadcrumbs"><a href="/">Home</a> / Pay</div>
     <span class="eyebrow">Payment desk</span>
-    <h1>One invoice.<span class="blue"> Card or Monero.</span></h1>
-    <p class="lead">Your full package fee is settled in one payment — by credit card or directly in Monero. Either way, the funds land in Viarela's Monero wallet and confirmation is automatic.</p>
+    <h1>One invoice.<span class="blue"> Paid by card.</span></h1>
+    <p class="lead">Your full package fee is settled in one payment, exactly like any online checkout. No account, no installation, no extra verification — after you pay, confirmation is automatic.</p>
   </div>
 </section>
 
@@ -50,27 +50,27 @@
           <span>1</span>
           <div>
             <h3>Create the invoice</h3>
-            <p>Pick your package and method on the card. Card payments are processed by our card partner; Monero is direct and fee-free. Both routes quote one exact amount for the full package fee.</p>
+            <p>Pick your package on the card. The desk shows one exact amount that covers the full package fee — nothing else will be charged.</p>
           </div>
         </article>
         <article>
           <span>2</span>
           <div>
-            <h3>Complete the payment</h3>
-            <p>Card: use the secure checkout button and pay with Visa or Mastercard. Monero: paste the invoice address and send the exact XMR amount from any Monero wallet. Both settle into our Monero wallet.</p>
+            <h3>Pay securely</h3>
+            <p>Your card is handled by our payment partner. It is a normal Visa/Mastercard charge — no app, no forms, no verification requested from you.</p>
           </div>
         </article>
         <article>
           <span>3</span>
           <div>
             <h3>Confirmation is automatic</h3>
-            <p>Your payment is verified on arrival. The invoice turns into “Payment complete”, your box updates on SimpleX — no receipt needed.</p>
+            <p>The moment the payment goes through, your invoice turns into “Payment complete” and your box updates on SimpleX — no receipt needed.</p>
           </div>
         </article>
       </div>
 
       <div class="pay-help">
-        <p><strong>One-line translation:</strong> Address = IBAN. XMR = currency. QR = barcode. Your card is handled by our payment partner. That is the whole system.</p>
+        <p><strong>One-line translation:</strong> This desk behaves exactly like a web-shop checkout. Your card is processed by our payment partner; the settlement details are handled on our side.</p>
       </div>
     </div>
 
@@ -83,48 +83,19 @@
         <button type="button" data-pack="unity">Unity</button>
       </div>
 
-      <div class="pay-methods">
-        <button type="button" class="is-on" data-method="card">Credit card</button>
-        <button type="button" data-method="xmr">Monero (XMR)</button>
-      </div>
+      <p class="note" data-card-note></p>
+      <button class="btn btn-dark" type="button" data-card-create>Pay by card</button>
 
-      <div data-panel="card">
-        <p class="note" data-card-note></p>
-        <button class="btn btn-dark" type="button" data-card-create>Pay by card</button>
-
-        <div data-card-result hidden>
-          <div class="pay-totals">
-            <div><small>You pay (EUR)</small><strong data-card-total>—</strong></div>
-            <div><small>Correct amount</small><strong data-card-settle></strong></div>
-          </div>
-          <a class="btn btn-primary" data-card-url target="_blank" rel="noopener noreferrer">Complete payment →</a>
-          <p class="note" data-card-status></p>
-          <p class="note" data-card-expires></p>
+      <div data-card-result hidden>
+        <div class="pay-totals">
+          <div><small>You pay (EUR)</small><strong data-card-total>—</strong></div>
         </div>
-        <p class="note" data-card-error></p>
+        <a class="btn btn-primary" data-card-url target="_blank" rel="noopener noreferrer">Complete payment →</a>
+        <p class="note">Settlement is handled automatically on our side — nothing else is needed.</p>
+        <p class="note" data-card-status></p>
+        <p class="note" data-card-expires></p>
       </div>
-
-      <div data-panel="xmr" hidden>
-        <p class="note">No card fee. Pay directly from any Monero wallet; confirmation is automatic.</p>
-        <button class="btn btn-dark" type="button" data-xmr-create>Create Monero invoice</button>
-
-        <div data-xmr hidden>
-          <div class="pay-totals">
-            <div><small>Full package (EUR)</small><strong data-xmr-eur>—</strong></div>
-            <div><small>Send this exact amount</small><strong data-xmr-amount>—</strong></div>
-          </div>
-          <p class="note" data-xmr-rate></p>
-          <div class="pay-qr-wrap"><img data-xmr-qr alt="Monero payment QR" width="260" height="260"></div>
-          <div class="pay-address">
-            <span>Paste this address</span>
-            <code data-xmr-address></code>
-            <button class="btn btn-primary" type="button" data-xmr-copy>Copy address</button>
-          </div>
-          <p class="note" data-xmr-expires></p>
-          <p class="note" data-xmr-status>Waiting for payment…</p>
-        </div>
-        <p class="note" data-xmr-error></p>
-      </div>
+      <p class="note" data-card-error></p>
     </aside>
   </div>
 </section>

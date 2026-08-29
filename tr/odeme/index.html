@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ödeme Masası | Viarela</title>
-<meta name="description" content="Viarela hizmet bedelini kredi kartı veya Monero (XMR) ile ödeyin. Tutar Monero cüzdanımıza düşer, onay otomatiktir. Yazılı sözleşme sonrası ödeme.">
+<meta name="description" content="Viarela hizmet bedelini kredi kartıyla ödeyin. Üyelik veya ek doğrulama gerektirmeyen normal, güvenli bir kart ödemesi. Onay otomatiktir. Yazılı sözleşme sonrası ödeme.">
 <meta name="theme-color" content="#0A335A">
 <link rel="canonical" href="https://viarela.com/tr/odeme/">
 <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../../assets/styles.css">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Viarela">
 <meta property="og:title" content="Ödeme Masası | Viarela">
-<meta property="og:description" content="Kredi kartı veya Monero. Otomatik onay.">
+<meta property="og:description" content="Kredi kartı. Otomatik onay.">
 <meta property="og:image" content="https://viarela.com/assets/og-viarela.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -32,8 +32,8 @@
   <div class="container">
     <div class="breadcrumbs"><a href="/tr/">Ana Sayfa</a> / Ödeme</div>
     <span class="eyebrow">Ödeme masası</span>
-    <h1>Tek fatura.<span class="blue"> Kart veya Monero.</span></h1>
-    <p class="lead">Paketin tamamı tek ödemeyle ödenir — kredi kartıyla ya da doğrudan Monero ile. Her iki yolda da tutar Viarela'nın Monero cüzdanına düşer ve onay otomatiktir.</p>
+    <h1>Tek fatura.<span class="blue"> Kartla ödenir.</span></h1>
+    <p class="lead">Paketin tamamı, normal bir internet alışverişi gibi tek ödemeyle ödenir. Hesap yok, kurulum yok, ek doğrulama yok — ödediğiniz an onay otomatiktir.</p>
   </div>
 </section>
 
@@ -50,27 +50,27 @@
           <span>1</span>
           <div>
             <h3>Faturayı oluşturun</h3>
-            <p>Karttan paketinizi ve yöntemi seçin. Kart ödemeleri ödeme ortağımızca işlenir; Monero doğrudandır ve kart ücreti yoktur. İki yol da paketin tamamı için tek tutar verir.</p>
+            <p>Karttan paketinizi seçin. Masa, paketin tamamını karşılayan tek tutarı gösterir — başka hiçbir ücret yansımaz.</p>
           </div>
         </article>
         <article>
           <span>2</span>
           <div>
-            <h3>Ödemeyi tamamlayın</h3>
-            <p>Kart: güvenli ödeme butonunu kullanın, Visa veya Mastercard ile ödeyin. Monero: fatura adresini yapıştırın, tam XMR tutarını herhangi bir Monero cüzdanından gönderin. İkisi de Monero cüzdanımıza düşer.</p>
+            <h3>Güvenle ödeyin</h3>
+            <p>Kartınızı ödeme ortağımız işler. Normal bir Visa/Mastercard ödemesidir — uygulama, form veya sizden istenen bir doğrulama yok.</p>
           </div>
         </article>
         <article>
           <span>3</span>
           <div>
             <h3>Onay otomatiktir</h3>
-            <p>Ödemeniz ulaşınca doğrulanır. Fatura “Ödeme tamamlandı” olur, SimpleX kutunuz güncellenir — dekont göndermeniz gerekmez.</p>
+            <p>Ödeme geçtiği anda fatura “Ödeme tamamlandı” olur, SimpleX kutunuz güncellenir — dekont göndermeniz gerekmez.</p>
           </div>
         </article>
       </div>
 
       <div class="pay-help">
-        <p><strong>Bir cümlelik çeviri:</strong> Adres = IBAN. XMR = ödeme birimi. QR = barkod. Kartınızı ödeme ortağımız işler. O kadar.</p>
+        <p><strong>Bir cümlelik çeviri:</strong> Bu masa, bir web-alışveriş ödemesi gibi çalışır. Kartınızı ödeme ortağımız işler; mutabakat bizim tarafımızda otomatik yapılır.</p>
       </div>
     </div>
 
@@ -83,48 +83,19 @@
         <button type="button" data-pack="unity">Unity</button>
       </div>
 
-      <div class="pay-methods">
-        <button type="button" class="is-on" data-method="card">Kredi kartı</button>
-        <button type="button" data-method="xmr">Monero (XMR)</button>
-      </div>
+      <p class="note" data-card-note></p>
+      <button class="btn btn-dark" type="button" data-card-create>Kartla öde</button>
 
-      <div data-panel="card">
-        <p class="note" data-card-note></p>
-        <button class="btn btn-dark" type="button" data-card-create>Kartla öde</button>
-
-        <div data-card-result hidden>
-          <div class="pay-totals">
-            <div><small>Ödeyeceğiniz (EUR)</small><strong data-card-total>—</strong></div>
-            <div><small>Doğru tutar</small><strong data-card-settle></strong></div>
-          </div>
-          <a class="btn btn-primary" data-card-url target="_blank" rel="noopener noreferrer">Ödemeyi tamamla →</a>
-          <p class="note" data-card-status></p>
-          <p class="note" data-card-expires></p>
+      <div data-card-result hidden>
+        <div class="pay-totals">
+          <div><small>Ödeyeceğiniz (EUR)</small><strong data-card-total>—</strong></div>
         </div>
-        <p class="note" data-card-error></p>
+        <a class="btn btn-primary" data-card-url target="_blank" rel="noopener noreferrer">Ödemeyi tamamla →</a>
+        <p class="note">Mutabakat bizim tarafımızda otomatik yapılır — başka bir şey yapmanız gerekmez.</p>
+        <p class="note" data-card-status></p>
+        <p class="note" data-card-expires></p>
       </div>
-
-      <div data-panel="xmr" hidden>
-        <p class="note">Kart ücreti yok. Herhangi bir Monero cüzdanından doğrudan ödeyin; onay otomatiktir.</p>
-        <button class="btn btn-dark" type="button" data-xmr-create>Monero faturası oluştur</button>
-
-        <div data-xmr hidden>
-          <div class="pay-totals">
-            <div><small>Tam paket (EUR)</small><strong data-xmr-eur>—</strong></div>
-            <div><small>Bu tutarı gönderin</small><strong data-xmr-amount>—</strong></div>
-          </div>
-          <p class="note" data-xmr-rate></p>
-          <div class="pay-qr-wrap"><img data-xmr-qr alt="Monero ödeme QR kodu" width="260" height="260"></div>
-          <div class="pay-address">
-            <span>Yapıştırılacak adres</span>
-            <code data-xmr-address></code>
-            <button class="btn btn-primary" type="button" data-xmr-copy>Adresi kopyala</button>
-          </div>
-          <p class="note" data-xmr-expires></p>
-          <p class="note" data-xmr-status>Ödeme bekleniyor…</p>
-        </div>
-        <p class="note" data-xmr-error></p>
-      </div>
+      <p class="note" data-card-error></p>
     </aside>
   </div>
 </section>
