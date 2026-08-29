@@ -148,14 +148,15 @@ Doğrulama akışılar iki katmanlı:
 
 ---
 
-## 9. Kart (On-Ramp) Kanalı
+## 9. Diğer Kripto Kanalı (NowPayments, crypto-direct)
 
-Bu kanal, "müşteri kredi kartıyla öder, para Monero cüzdanına düşer" akışını ekler. Detaylı tasarım için `docs/card-payments.md`'e bak. Özet:
+Bu kanal, "müşteri BTC/ETH/USDT ile öder, para Monero cüzdanına düşer" akışını ekler. Kart ve banka havalesi bilinçli olarak yoktur (işletme doğrulaması gerektirir). Detaylı tasarım için `docs/card-payments.md`'e bak. Özet:
 
-- Müşteri pay desk'te tek seçenek olarak **Kredi kartı**nı görür (XMR sekmesi kaldırıldı, müşteriye XMR hiç gösterilmez). `/api/card/order/` yeni `card_orders` satırı + `channel='card'` fatura üretir.
-- Sağlayıcı (varsayılan **ChangeNOW**, tek defalık işletme KYB'si gerekir) fiat ödemeyi alır ve **bizim havuz subaddress'ine** XMR basar.
-- Mevcut **xmr-bridge** bu subaddress'teki XMR'i izler; kart faturalarında **tutara bakmadan onaylanmış (10 onay) varışı kredi sayar** → fatura `credited` olur, SimpleX/admin bildirimi otomatiktir.
-- `NOW_API_KEY` tanımsızken `/api/card/order/` 503 `PROVIDER_NOT_CONFIGURED` döner; desk "kart ödemeleri aktifleştiriliyor" notuyla açık kalır (XMR fallback gösterilmez).
+- Müşteri pay desk'te **Monero (XMR)** veya **diğer kripto** (BTC/ETH/USDT) seçer. İki yöntem de gizlidir, müşteriden üyelik/belge istenmez; hiçbir sayfada kart/banka ifadesi yoktur.
+- `/api/card/order/` `{package_id, method:'crypto'}` → `channel='psp'` fatura + `card_orders` satırı + NowPayments `/v1/invoice` hosted checkout.
+- Sağlayıcı ödemeyi `finished` görünce **çekim** (`/v1/withdrawal`, `pay_currency:'xmr'`) o faturanın popped subaddress'ine yapılır. `withdraw` fonksiyonu olan sağlayıcılarda `finished` **anında kredi vermez** — kredi her zaman xmr-bridge'in subaddress'teki onaylı XMR varışını görünce gelir.
+- Mevcut **xmr-bridge**, `channel IN ('psp','card')` faturalarında **tutara bakmadan onaylanmış (10 onay) varışı kredi sayar** → fatura `credited` olur, SimpleX/admin bildirimi otomatiktir.
+- `NOWPAYMENTS_API_KEY` tanımsızken `/api/card/order/` 503 `PROVIDER_NOT_CONFIGURED` döner; desk kripto panelinde "aktifleştiriliyor" notu gösterir ve Monero paneli çalışmaya devam eder.
 
 ---
 

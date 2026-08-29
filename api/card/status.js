@@ -1,5 +1,6 @@
 import { requireEnv, supabaseJson } from '../xmr/_lib.js';
 import { refreshCardOrder, creditInvoice, voidInvoice } from './_help.js';
+import * as providers from './_providers/index.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -22,7 +23,7 @@ export default async function handler(req, res) {
 
   const refreshed = await refreshCardOrder(cfg, invoiceId);
   if (refreshed) {
-    if (refreshed.providerStatus === 'finished' && invoice.status !== 'credited') {
+    if (refreshed.providerStatus === 'finished' && invoice.status !== 'credited' && typeof providers.provider().withdraw !== 'function') {
       await creditInvoice(cfg, invoiceId, { received: refreshed.amount != null ? refreshed.amount : undefined });
     } else if (['failed', 'refunded'].includes(refreshed.providerStatus) && !['credited', 'void'].includes(invoice.status)) {
       await voidInvoice(cfg, invoiceId);

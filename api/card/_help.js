@@ -39,14 +39,24 @@ export async function updateCardOrder(cfg, orderId, patch) {
 export async function refreshCardOrder(cfg, invoiceId) {
   const order = await getCardOrder(cfg, invoiceId);
   if (!order || !order.provider_order_id) return null;
+  const pf = providers.provider();
   let st;
   try {
-    st = await providers.provider().getStatus(order.provider_order_id);
+    st = await pf.getStatus(order.provider_order_id);
   } catch (e) {
     return { order, providerStatus: order.status || 'pending', raw: null, amount: null };
   }
-  if (st.status !== (order.status || 'pending') || st.raw !== order.last_provider_status) {
+  let status = st.status;
+  if (status === 'finished' && typeof pf.withdraw === 'function' && order.payout_address && order.status !== 'withdrawing') {
+    try {
+      await pf.withdraw({ orderId: order.provider_order_id, payoutAddress: order.payout_address });
+      await updateCardOrder(cfg, order.id, { status: 'withdrawing', last_provider_status: st.raw || null });
+      status = 'withdrawing';
+    } catch (e) {
+      status = 'finished';
+    }
+  } else if (st.status !== (order.status || 'pending') || st.raw !== order.last_provider_status) {
     await updateCardOrder(cfg, order.id, { status: st.status, last_provider_status: st.raw || null });
   }
-  return { order: { ...order, status: st.status, last_provider_status: st.raw || null }, providerStatus: st.status, raw: st.raw, amount: st.payoutAmountXmr != null ? st.payoutAmountXmr : null };
+  return { order: { ...order, status, last_provider_status: st.raw || null }, providerStatus: status, raw: st.raw, amount: st.payoutAmountXmr != null ? st.payoutAmountXmr : null };
 }

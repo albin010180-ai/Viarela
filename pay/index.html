@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Payment Desk | Viarela</title>
-<meta name="description" content="Pay the full Viarela engagement fee by credit card. A normal, secure card charge — no sign-up and no extra verification. Confirmation is automatic. Payment follows the written agreement only.">
+<meta name="description" content="Pay the full Viarela engagement fee in Monero or any major cryptocurrency. Fully private — no sign-up and no verification — with automatic confirmation. Payment follows the written agreement only.">
 <meta name="theme-color" content="#0A335A">
 <link rel="canonical" href="https://viarela.com/pay/">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../assets/styles.css">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Viarela">
 <meta property="og:title" content="Payment Desk | Viarela">
-<meta property="og:description" content="Credit card. Automatic confirmation.">
+<meta property="og:description" content="Private crypto payment. Automatic confirmation.">
 <meta property="og:image" content="https://viarela.com/assets/og-viarela.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -32,8 +32,8 @@
   <div class="container">
     <div class="breadcrumbs"><a href="/">Home</a> / Pay</div>
     <span class="eyebrow">Payment desk</span>
-    <h1>One invoice.<span class="blue"> Paid by card.</span></h1>
-    <p class="lead">Your full package fee is settled in one payment, exactly like any online checkout. No account, no installation, no extra verification — after you pay, confirmation is automatic.</p>
+    <h1>One invoice.<span class="blue"> Paid privately.</span></h1>
+    <p class="lead">Pay with Monero or any major cryptocurrency — whichever you have. No sign-up, no verification, nothing to install. Both methods are fully private and confirmation is automatic.</p>
   </div>
 </section>
 
@@ -50,27 +50,27 @@
           <span>1</span>
           <div>
             <h3>Create the invoice</h3>
-            <p>Pick your package on the card. The desk shows one exact amount that covers the full package fee — nothing else will be charged.</p>
+            <p>Pick your package and method. Every invoice shows one exact amount in the currency you choose — nothing else will be charged.</p>
           </div>
         </article>
         <article>
           <span>2</span>
           <div>
-            <h3>Pay securely</h3>
-            <p>Your card is handled by our payment partner. It is a normal Visa/Mastercard charge — no app, no forms, no verification requested from you.</p>
+            <h3>Pay from any wallet</h3>
+            <p>Monero: send the exact amount to the invoice address. Other crypto: pay with BTC, ETH or USDT and the conversion is handled automatically. Both ways are private — no account, no documents.</p>
           </div>
         </article>
         <article>
           <span>3</span>
           <div>
             <h3>Confirmation is automatic</h3>
-            <p>The moment the payment goes through, your invoice turns into “Payment complete” and your box updates on SimpleX — no receipt needed.</p>
+            <p>The moment payment arrives, your invoice turns into “Payment complete” and your box updates on SimpleX — no receipt needed.</p>
           </div>
         </article>
       </div>
 
       <div class="pay-help">
-        <p><strong>One-line translation:</strong> This desk behaves exactly like a web-shop checkout. Your card is processed by our payment partner; the settlement details are handled on our side.</p>
+        <p><strong>One-line translation:</strong> Address = IBAN. QR = barcode. Every invoice uses a fresh, unlinked address and we never ask for your name or documents — that is the whole system.</p>
       </div>
     </div>
 
@@ -83,19 +83,47 @@
         <button type="button" data-pack="unity">Unity</button>
       </div>
 
-      <p class="note" data-card-note></p>
-      <button class="btn btn-dark" type="button" data-card-create>Pay by card</button>
-
-      <div data-card-result hidden>
-        <div class="pay-totals">
-          <div><small>You pay (EUR)</small><strong data-card-total>—</strong></div>
-        </div>
-        <a class="btn btn-primary" data-card-url target="_blank" rel="noopener noreferrer">Complete payment →</a>
-        <p class="note">Settlement is handled automatically on our side — nothing else is needed.</p>
-        <p class="note" data-card-status></p>
-        <p class="note" data-card-expires></p>
+      <div class="pay-methods">
+        <button type="button" class="is-on" data-method="monero">Monero (XMR)</button>
+        <button type="button" data-method="crypto">Other crypto</button>
       </div>
-      <p class="note" data-card-error></p>
+
+      <div data-panel="monero">
+        <p class="note">Fee-free. Send from any Monero wallet; confirmation is automatic. A fresh address is created for each invoice.</p>
+        <button class="btn btn-dark" type="button" data-xmr-create>Create Monero invoice</button>
+
+        <div data-xmr hidden>
+          <div class="pay-totals">
+            <div><small>Full package (EUR)</small><strong data-xmr-eur>—</strong></div>
+            <div><small>Send this exact amount</small><strong data-xmr-amount>—</strong></div>
+          </div>
+          <p class="note" data-xmr-rate></p>
+          <div class="pay-qr-wrap"><img data-xmr-qr alt="Monero payment QR" width="260" height="260"></div>
+          <div class="pay-address">
+            <span>Paste this address</span>
+            <code data-xmr-address></code>
+            <button class="btn btn-primary" type="button" data-xmr-copy>Copy address</button>
+          </div>
+          <p class="note" data-xmr-expires></p>
+          <p class="note" data-xmr-status>Waiting for payment…</p>
+        </div>
+        <p class="note" data-xmr-error></p>
+      </div>
+
+      <div data-panel="crypto" hidden>
+        <p class="note" data-crypto-note>Pay with BTC, ETH, USDT or LTC — private, no sign-up. The conversion is handled automatically.</p>
+        <button class="btn btn-dark" type="button" data-crypto-create>Pay with BTC / ETH / USDT</button>
+
+        <div data-crypto-result hidden>
+          <div class="pay-totals">
+            <div><small>You pay (EUR)</small><strong data-crypto-total>—</strong></div>
+          </div>
+          <a class="btn btn-primary" data-crypto-url target="_blank" rel="noopener noreferrer">Complete payment →</a>
+          <p class="note" data-crypto-status></p>
+          <p class="note" data-crypto-expires></p>
+        </div>
+        <p class="note" data-crypto-error></p>
+      </div>
     </aside>
   </div>
 </section>

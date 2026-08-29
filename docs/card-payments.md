@@ -1,58 +1,63 @@
-# Viarela — Kart (On-Ramp) Ödeme Mimarisi
+# Viarela — Anonim Crypto-Direct Ödeme Mimarisi
 
-Müşteri kredi kartıyla öder, para Viarela'nın Monero cüzdanına düşer. Amacı: müşteri için sıradan bir web-alışveriş ödemesi; bizim taraf için para biriminin ve akışın Monero kalması.
+Müşteri pay desk'te iki yöntemden birini seçer; **satıcıya ödeme her zaman yalnızca Monero (XMR)** olarak ulaşır. Şirket yok, KYC yok, kart/SEPA/banka havalesi yok.
 
-**Müşteri deneyimi iki şeyi asla görmez:** XMR/crypto ve herhangi bir doğrulama adımı (KYC/yetkilendirme). Müşteriye açık tüm sayfalarda (pay desk, FAQ/SSS, paketler, legal) yalnızca "ödeme ortağımız üzerinden Visa/Mastercard" ifadesi geçer; tutar EUR, onay otomatiktir.
+1. **Doğrudan Monero:** Müşteri, `assets/pay.js`'in `/api/xmr/invoice/` ile ürettiği tek-kullanımlık subaddress'e XMR gönderir. Onay = 10 blok onayı, otomatik.
+2. **Diğer kripto (NowPayments):** Müşteri BTC/ETH/USDT/LTC öder (merchant hesabı üzerinden; müşteri tarafında üyelik/KYC yok). Ödeme `finished` olduğunda biz **`POST /v1/withdrawal`** ile o faturanın popped subaddress'ine **XMR çekim** yaparız; xmr-bridge o subaddress'teki varışı görünce kredilendirir.
+
+**Müşteri yüzü şunları görür:** Monero (XMR) paneli veya "diğer kripto" paneli — iki yöntem de gizlidir, üyelik/belge istemez. Hiçbir sayfa karttan, bankadan veya doğrulamadan bahsetmez.
 
 ## Akış
 
 ```
- Müşteri (pay desk, karta özel — XMR sekmesi yok)
-   │  POST /api/card/order/   { package_id }
-   ▼
- provider (ChangeNOW v2, CARD_PROVIDER env)  → fiat (EUR) ödeme alır
-   ▼  ChangeNOW, bizim havuzdan seçilen subaddress'e XMR basar (payoutAddress)
- xmr-bridge (services/monero)  → o subaddress'teki onaylanmış varışı görür
-   │   channel='card' → kredi; 10 onay bekle, tutara bakma
-   ▼
- Supabase xmr_invoices  → status='credited', admin toast + SimpleX otomatik
+ A. Doğrudan Monero
+  Müşteri → POST /api/xmr/invoice/ { package_id } → taze subaddress + QR
+  Müşteri → XMR gönderir → xmr-bridge (10 onay) → status='credited'
+
+ B. Diğer kripto (NowPayments)
+  Müşteri → POST /api/card/order/ { package_id, method:'crypto', channel='psp' }
+     │  pop_xmr_address → subaddress rezerve edilir
+     ▼  NowPayments POST /v1/invoice → invoice_url (hosted checkout)
+  Müşteri → BTC/ETH/USDT öder
+     │  biz /v1/payment/{id} yoklarız → 'finished'
+     ▼  POST /v1/withdrawal { payment_id, address: <subaddress>, pay_currency:'xmr' }
+  xmr-bridge → subaddress'te XMR varışı (kanal psp: tutara bakmaz) → 10 onay → credited
 ```
+
+`xmr_invoices.channel` kolonu: `xmr` (doğrudan) veya `psp` (NowPayments aracılı). Eski `card` değeri kodda toleransla `psp` gibi çalışır; shared status dayanmaz. Varsayılan `xmr`.
 
 ## Parçalar
 
-- `xmr_invoices.channel` kolonu: `xmr` (doğrudan Monero) veya `card` (onramp). Varsayılan `xmr`.
-- `card_orders` tablosu: `id`, `invoice_id`, `invoice_no`, `provider`, `provider_order_id`, `usd_amount`, `fiat_amount_eur`, `surcharge_pct`, `estimate_xmr`, `fx_rate`, `payout_address`, `provider_pay_url`, `provider_status`, `created_at`, `updated_at`. RLS: public read/write kapalı, service_role only. Realtime açık (admin panel canlı görsün diye).
-- `api/card/_providers/*` — sağlayıcı soyutlaması: `configured`, `createOrder`, `getStatus`, `payUrlFor`. Şu an ChangeNOW + Guardarian stub.
-- `api/card/order.js` — POST. Sağlayıcı yapılandırılmamışsa **503 PROVIDER_NOT_CONFIGURED** (adres pop edilmez, boşa subaddress yanmaz). Fatura `channel='card'`, stage `full`, +%3 güvenlik payı. Provider siparişi başarısız olursa `voidInvoice`. Müşteriye dönen hata mesajları XMR'den arındırılmıştır.
-- `api/card/status.js` — GET `?invoice_id=...`; sağlayıcıyı refresh eder, finished → kredi, failed → void.
-- `api/card/webhook.js` — POST; siparişi `invoice_id` veya `provider_order_id` ile bulur; kendi `getStatus` çağrısını otorite sayar (webhook'a körü körüne güvenmez).
-- `api/xmr/status.js` — `channel`/`payment_url`/`card_status` döner; card+pending faturalarda sağlayıcıyı refresh edip kredi/void tetikler. Pay desk bu uçtan yoklar ama müşteriye XMR tutar/adres göstermez.
-- `services/monero/xmr-bridge.js` — `channel='card'` faturalar 10 onayda, alınan tutara bakmadan kredilendirilir (sağlayıcı zaten istenen tutarı basar; kısmi/eksik varış silme riskine seslenmez).
+- `card_orders`: `id, invoice_id, provider, provider_order_id, payment_url, fiat_amount, payout_address, status, last_provider_status, created_at, updated_at` (RLS: service_role only; realtime açık).
+- `api/card/_providers/*` — sağlayıcı soyutlaması: `configInfo()`, `createOrder({payoutAddress, fiatAmount})`, `getStatus(orderId)`, opsiyonel `withdraw({orderId, payoutAddress})`. Varsayılan `nowpayments`; `changenow`/`guardarian` eski uyumluluk.
+- `api/card/order.js` — POST `{package_id, method:'crypto'}`. Sağlayıcı yapılandırılmamışsa **503 PROVIDER_NOT_CONFIGURED** (adres pop edilmez). Fatura `channel='psp'`, stage `full`, +%3 güvenlik payı internal tahmin. Provider arızasında `voidInvoice`. Müşteri mesajları anonimdir ("Multi-crypto payments are being activated. Please pay with Monero for now.").
+- `api/card/status.js` + `api/card/webhook.js` — finished/fail tespiti. **`withdraw` fonksiyonu olan sağlayıcılarda (NowPayments) 'finished' anında kredi verilmez:** önce çekim tetiklenir, kredi her zaman xmr-bridge'in gerçek XMR varışını görünce gelir. Krediyi webhook'a değil, kendi `getStatus`/bridge sonucuna bağlarız.
+- `api/xmr/status.js` — pub desk poll ucu; `channel/'payment_url'/'card_status'` döner. psp+pending faturalarda sağlayıcıyı refresh eder.
+- `assets/pay.js` — method toggle (monero default / crypto), i18n, `/api/card/config/` ile "aktifleştiriliyor" notu.
+- `services/monero/xmr-bridge.js` — `channel IN ('psp','card')` faturaları 10 onayda, alınan tutara bakmadan kredilendirir (çekim zaten istenen tutarı basar).
 
 ## Mimari kararlar
 
-1. **Sağlayıcı kimliği webhook'ta değil, kendi sorgumuzda.** Webhook yalnızca "bak" der; kredi/void her zaman `getStatus` sonucuna bağlanır.
-2. **Adres pop etme sadece sipariş gerçekten oluştuğunda.** 503 durumunda havuz adresleri hiç tüketilmez.
-3. **USDT/TRC20 yok ve müşteriye XMR hiç gösterilmez.** Müşteri karta özel bir masa görür: paket → tek EUR tutar → öde → onay. QR/adres/XMR tutarı hiç basılmaz.
-4. **Müşteriden hiçbir doğrulama istenmez.** Ödeme ortağı, merchan'ın kayıtlı hesabı üzerinden ödemeyi alır; müşteri tarafında üyelik/form/KYC adımı yoktur. Alıcı tarafı ise SSH/self-custody Monero cüzdanıdır — teslimatta hiçbir doğrulama yoktur.
+1. **Kredi tek otorite:** NowPayments `finished` = "müşteri ödedi" demektir; "bizim cüzdanda" demek değildir. Kredi her zaman subaddress'e XMR'in düştüğünü gören bridge'den gelir. Böylece hesap üzerinde kalan bakiye ile karışmaz.
+2. **Adres pop etme yalnızca sipariş gerçekten doğabilirse:** provider yapılandırılmamışsa havuz adresleri tüketilmez.
+3. **Müşteri tarafında hiçbir doğrulama adımı yoktur:** doğrudan XMR zaten KYC'siz; NowPayments hosted invoice müşteriden üyelik/belge istemez. Bizden hiçbir yüzey kart/banka/SEPA isimleri içermez.
 
 ## Gereksinimler ve dürüst sınır
 
-- **Tüm kart işlemcileri yasalar gereği işletmeyi (alıcı hesabı) bir kez doğrular.** Bu bir transaksiyon başı doğrulama değildir; ödeme ortağına hesap açılırken yapılan tek defalık adımdır ve müşteriye görünmez. Müşteri başına KYC/alım limiti aşımı olmaz.
-- ChangeNOW fiat on/off-ramp kayıtlı şirket + KYB ile açılır; hesap bir kez doğrulanınca sonraki ödemelerde müşteri KYC'si tetiklenmez.
-- **Sağlayıcının kendi ödeme sayfası** (ChangeNOW checkout) ödenecek varlığın adını gösterebilir; bu sayfa üçüncü tarafa aittir ve bizim kontrolümüz dışındadır. Bizim tüm yüzeylerimiz (pay desk, FAQ/SSS, paketler, legal) XMR'den tamamen arındırılmıştır.
-- **Alıcı için de sıfır doğrulama isteniyorsa:** kart zinciri bunu sağlayamaz (işletme hesabı yasal olarak doğrulanır). Mutlak anonimlik gerekiyorsa tek yasal yol müşterinin doğrudan crypto ödemesidir — "kart" ile çelişir, ayrıca ele alınır.
-
-## Milestones
-
-1. **API + DB (şu an):** schema live'da, uçlar yazıldı. Test: `/api/card/config/` → 200 `{provider:'changenow', configured:false}`, `/api/card/order/` → 503. Desk karta özel, XMR'siz açılır.
-2. **Canlıya alma:** kullanıcı ChangeNOW hesabını açıp tek defalık KYB'yi tamamlar → `NOW_API_KEY` set → kart sekmesi aktif olur. Sahte gönderim yerine ChangeNOW test/tek-tık ödeme ile E2E doğrulanır (bridge aracılığıyla `credited`).
-3. **Opsiyonel:** yedek sağlayıcı (ör. Guardarian) gerçek uygulama — aynı `_providers` arayüzüne takılır.
+- **Satıcı tarafı tamamen anonim değildir:** NowPayments kripto-ödeme işlemcisidir; hesap açarken işletmenizi/kişinizi bir kez tanır ve ancak "fiat → kripto mutabakatlı işlem" yapar. Mutlak satıcı anonimliği için ödemeleri platformdan tamamen çıkaran akış (ör. saf doğrudan XMR) kalıcı varsayılan olmalıdır.
+- Bidirectional: kripto onayı, vergi/KYC/AML yükümlülüklerini ortadan kaldırmaz; gelir mutabakatını bridge üretir, bildirim tarafı sana aittir.
+- **Kart/SEPA seçeneği bilinçli kaldırıldı:** yasal olarak doğrulanmış işletme hesabı (ve standart fiat-PSP sözleşmesi) gerektirir; "satıcı hiç doğrulanmasın" ile birlikte kurgulanamaz.
 
 ## Env
 
 | Anahtar | Açıklama |
 |---|---|
-| `CARD_PROVIDER` | `changenow` (varsayılan). Boşsa kart kapalı demektir. |
-| `CARD_SURCHARGE_PCT` | Kart pozunun payı (yüzde ondalık, ör. `0` veya `1.5`). Müşterinin `fiat_amount_eur` hesabına eklenir. |
-| `NOW_API_KEY` | ChangeNOW v2 API anahtarı. Boşsa `configured:false` → 503 fallback; sitenin desk'i karta özel ve XMR'siz kalır. |
+| `CARD_PROVIDER` | `nowpayments` (varsayılan). |
+| `CARD_SURCHARGE_PCT` | `fiat_amount` hesabına eklenen yüzde (onkdalık, ör. `0`). |
+| `NOWPAYMENTS_API_KEY` | NowPayments API anahtarı. Boşsa `configured:false` → desk "aktifleştiriliyor" der, Monero paneli açık kalır. |
+
+## Milestones
+
+1. **API + desk (şu an):** monero + crypto panelleri yayında; key yok → crypto panelinde buton gizli + not; `/api/card/config/` → `{provider:'nowpayments', configured:false}`, `/api/card/order/` → 503 anon mesaj, `/api/xmr/invoice/` → 409 (`NO_ADDRESS_AVAILABLE`, havuz boş).
+2. **Canlıya alma:** kullanıcı NowPayments hesabı/kurulumunu yapar; `NOWPAYMENTS_API_KEY` set → askıdaki uç nokta adları ve alan adları (invoice `payment_id`/`invoice_url`, `/payment/{id}`, `/withdrawal`) gerçek anahtarla doğrulanır; kripto paneli aktifleşir; sahte ödeme yerine hesap üzerinde düşük tutarlı E2E ile `credited` doğrulanır.
+3. **Opsiyonel:** ikincil sağlayıcı aynı `_providers` arayüzüne takılır.

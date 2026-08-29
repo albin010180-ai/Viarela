@@ -36,10 +36,21 @@ export default async function handler(req, res) {
     return res.status(502).json({ error: 'Provider unreachable' });
   }
 
-  await updateCardOrder(cfg, order.id, { status: st.status, last_provider_status: st.raw || null });
+  const pf = providers.provider();
+  const doWithdraw = st.status === 'finished' && typeof pf.withdraw === 'function' && order.payout_address && order.status !== 'withdrawing';
+  if (doWithdraw) {
+    try {
+      await pf.withdraw({ orderId: order.provider_order_id, payoutAddress: order.payout_address });
+      await updateCardOrder(cfg, order.id, { status: 'withdrawing', last_provider_status: st.raw || null });
+    } catch (e) {}
+  } else {
+    await updateCardOrder(cfg, order.id, { status: st.status, last_provider_status: st.raw || null });
+  }
 
   if (st.status === 'finished') {
-    await creditInvoice(cfg, order.invoice_id, { received: st.payoutAmountXmr != null ? st.payoutAmountXmr : undefined });
+    if (!doWithdraw) {
+      await creditInvoice(cfg, order.invoice_id, { received: st.payoutAmountXmr != null ? st.payoutAmountXmr : undefined });
+    }
   } else if (['failed', 'refunded'].includes(st.status)) {
     await voidInvoice(cfg, order.invoice_id);
   }

@@ -8,12 +8,13 @@ export default async function handler(req, res) {
 
   const p = providers.provider();
   if (!p.configInfo().configured) {
-    return res.status(503).json({ error: 'PROVIDER_NOT_CONFIGURED', message: 'Card payments are being activated. Please check back shortly.' });
+    return res.status(503).json({ error: 'PROVIDER_NOT_CONFIGURED', message: 'Multi-crypto payments are being activated. Please pay with Monero for now.' });
   }
 
   const b = req.body || {};
   const packageId = String(b.package_id || '').trim();
   if (!PACKAGES[packageId]) return res.status(400).json({ error: 'Unknown package' });
+  const method = String(b.method || 'crypto').trim();
 
   let cfg;
   try {
@@ -44,10 +45,10 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(503).json({
       error: 'NO_ADDRESS_AVAILABLE',
-      message: 'Card payments are being activated on our side. Please check back shortly.'
+      message: 'Payments are being activated on our side. Please check back shortly.'
     });
   }
-  if (!popped) return res.status(503).json({ error: 'NO_ADDRESS_AVAILABLE', message: 'Card payments are being activated on our side. Please check back shortly.' });
+  if (!popped) return res.status(503).json({ error: 'NO_ADDRESS_AVAILABLE', message: 'Payments are being activated on our side. Please check back shortly.' });
 
   const expiresAt = new Date(Date.now() + VALIDITY_MIN * 60000).toISOString();
   const invoiceNo = randomInvoiceNo();
@@ -65,7 +66,7 @@ export default async function handler(req, res) {
       safety_pct: SAFETY_PCT,
       package_id: packageId,
       stage: 'full',
-      channel: 'card',
+      channel: 'psp',
       expires_at: expiresAt
     })
   });
@@ -78,9 +79,9 @@ export default async function handler(req, res) {
   } catch (e) {
     await voidInvoice(cfg, invRow.id);
     if (e.message === 'provider_not_configured') {
-      return res.status(503).json({ error: 'PROVIDER_NOT_CONFIGURED', message: 'Card payments are being activated. Please check back shortly.' });
+      return res.status(503).json({ error: 'PROVIDER_NOT_CONFIGURED', message: 'Multi-crypto payments are being activated. Please pay with Monero for now.' });
     }
-    return res.status(502).json({ error: 'Card provider failed', message: 'Unable to reach the card processor. Please retry in a moment.' });
+    return res.status(502).json({ error: 'Card provider failed', message: 'Unable to reach the processor. Please retry in a moment.' });
   }
 
   const co = await supabaseJson(cfg.url, '/rest/v1/card_orders', {

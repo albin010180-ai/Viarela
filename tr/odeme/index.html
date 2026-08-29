@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ödeme Masası | Viarela</title>
-<meta name="description" content="Viarela hizmet bedelini kredi kartıyla ödeyin. Üyelik veya ek doğrulama gerektirmeyen normal, güvenli bir kart ödemesi. Onay otomatiktir. Yazılı sözleşme sonrası ödeme.">
+<meta name="description" content="Viarela hizmet bedelini Monero veya herhangi bir büyük kripto para ile ödeyin. Tamamen gizli — üyelik ve doğrulama yok — onay otomatiktir. Yazılı sözleşme sonrası ödeme.">
 <meta name="theme-color" content="#0A335A">
 <link rel="canonical" href="https://viarela.com/tr/odeme/">
 <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../../assets/styles.css">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Viarela">
 <meta property="og:title" content="Ödeme Masası | Viarela">
-<meta property="og:description" content="Kredi kartı. Otomatik onay.">
+<meta property="og:description" content="Gizli kripto ödeme. Otomatik onay.">
 <meta property="og:image" content="https://viarela.com/assets/og-viarela.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -32,8 +32,8 @@
   <div class="container">
     <div class="breadcrumbs"><a href="/tr/">Ana Sayfa</a> / Ödeme</div>
     <span class="eyebrow">Ödeme masası</span>
-    <h1>Tek fatura.<span class="blue"> Kartla ödenir.</span></h1>
-    <p class="lead">Paketin tamamı, normal bir internet alışverişi gibi tek ödemeyle ödenir. Hesap yok, kurulum yok, ek doğrulama yok — ödediğiniz an onay otomatiktir.</p>
+    <h1>Tek fatura.<span class="blue"> Gizlice ödenir.</span></h1>
+    <p class="lead">Monero veya elinizde hangisi varsa herhangi bir büyük kripto para ile ödeyin. Üyelik yok, doğrulama yok, kurulum yok. İki yöntem de tamamen gizlidir ve onay otomatiktir.</p>
   </div>
 </section>
 
@@ -50,27 +50,27 @@
           <span>1</span>
           <div>
             <h3>Faturayı oluşturun</h3>
-            <p>Karttan paketinizi seçin. Masa, paketin tamamını karşılayan tek tutarı gösterir — başka hiçbir ücret yansımaz.</p>
+            <p>Paketinizi ve ödeme yöntemini seçin. Her fatura, seçtiğiniz yöntemin para biriminde tek tutarı gösterir — başka hiçbir ücret yansımaz.</p>
           </div>
         </article>
         <article>
           <span>2</span>
           <div>
-            <h3>Güvenle ödeyin</h3>
-            <p>Kartınızı ödeme ortağımız işler. Normal bir Visa/Mastercard ödemesidir — uygulama, form veya sizden istenen bir doğrulama yok.</p>
+            <h3>Herhangi bir cüzdandan ödeyin</h3>
+            <p>Monero: fatura adresine tam tutarı gönderin. Diğer kripto: BTC, ETH veya USDT ile ödeyin, dönüşüm otomatik yapılır. İki yol da gizlidir — hesap yok, belge yok.</p>
           </div>
         </article>
         <article>
           <span>3</span>
           <div>
             <h3>Onay otomatiktir</h3>
-            <p>Ödeme geçtiği anda fatura “Ödeme tamamlandı” olur, SimpleX kutunuz güncellenir — dekont göndermeniz gerekmez.</p>
+            <p>Ödeme ulaştığı anda fatura “Ödeme tamamlandı” olur, SimpleX kutunuz güncellenir — dekont göndermeniz gerekmez.</p>
           </div>
         </article>
       </div>
 
       <div class="pay-help">
-        <p><strong>Bir cümlelik çeviri:</strong> Bu masa, bir web-alışveriş ödemesi gibi çalışır. Kartınızı ödeme ortağımız işler; mutabakat bizim tarafımızda otomatik yapılır.</p>
+        <p><strong>Bir cümlelik çeviri:</strong> Adres = IBAN. QR = barkod. Her fatura için taze, bağlantısız bir adres üretilir; adınızı veya belgenizi asla sormayız — sistemin tamamı bu.</p>
       </div>
     </div>
 
@@ -83,19 +83,47 @@
         <button type="button" data-pack="unity">Unity</button>
       </div>
 
-      <p class="note" data-card-note></p>
-      <button class="btn btn-dark" type="button" data-card-create>Kartla öde</button>
-
-      <div data-card-result hidden>
-        <div class="pay-totals">
-          <div><small>Ödeyeceğiniz (EUR)</small><strong data-card-total>—</strong></div>
-        </div>
-        <a class="btn btn-primary" data-card-url target="_blank" rel="noopener noreferrer">Ödemeyi tamamla →</a>
-        <p class="note">Mutabakat bizim tarafımızda otomatik yapılır — başka bir şey yapmanız gerekmez.</p>
-        <p class="note" data-card-status></p>
-        <p class="note" data-card-expires></p>
+      <div class="pay-methods">
+        <button type="button" class="is-on" data-method="monero">Monero (XMR)</button>
+        <button type="button" data-method="crypto">Diğer kripto</button>
       </div>
-      <p class="note" data-card-error></p>
+
+      <div data-panel="monero">
+        <p class="note">İşlem ücreti yok. Herhangi bir Monero cüzdanından gönderin; onay otomatiktir. Her fatura için taze bir adres üretilir.</p>
+        <button class="btn btn-dark" type="button" data-xmr-create>Monero faturası oluştur</button>
+
+        <div data-xmr hidden>
+          <div class="pay-totals">
+            <div><small>Tam paket (EUR)</small><strong data-xmr-eur>—</strong></div>
+            <div><small>Bu tutarı gönderin</small><strong data-xmr-amount>—</strong></div>
+          </div>
+          <p class="note" data-xmr-rate></p>
+          <div class="pay-qr-wrap"><img data-xmr-qr alt="Monero ödeme QR kodu" width="260" height="260"></div>
+          <div class="pay-address">
+            <span>Yapıştırılacak adres</span>
+            <code data-xmr-address></code>
+            <button class="btn btn-primary" type="button" data-xmr-copy>Adresi kopyala</button>
+          </div>
+          <p class="note" data-xmr-expires></p>
+          <p class="note" data-xmr-status>Ödeme bekleniyor…</p>
+        </div>
+        <p class="note" data-xmr-error></p>
+      </div>
+
+      <div data-panel="crypto" hidden>
+        <p class="note" data-crypto-note>BTC, ETH, USDT veya LTC ile ödeyin — gizli, üyelik yok. Dönüşüm otomatik yapılır.</p>
+        <button class="btn btn-dark" type="button" data-crypto-create>BTC / ETH / USDT ile öde</button>
+
+        <div data-crypto-result hidden>
+          <div class="pay-totals">
+            <div><small>Ödeyeceğiniz (EUR)</small><strong data-crypto-total>—</strong></div>
+          </div>
+          <a class="btn btn-primary" data-crypto-url target="_blank" rel="noopener noreferrer">Ödemeyi tamamla →</a>
+          <p class="note" data-crypto-status></p>
+          <p class="note" data-crypto-expires></p>
+        </div>
+        <p class="note" data-crypto-error></p>
+      </div>
     </aside>
   </div>
 </section>

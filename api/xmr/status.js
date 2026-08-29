@@ -1,5 +1,6 @@
 import { supabaseJson, requireEnv } from './_lib.js';
 import { refreshCardOrder, creditInvoice, voidInvoice } from '../card/_help.js';
+import * as providers from '../card/_providers/index.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -37,15 +38,19 @@ export default async function handler(req, res) {
     card_status: null
   };
 
-  if (out.channel === 'card' && out.status === 'pending') {
+  if ((out.channel === 'card' || out.channel === 'psp') && out.status === 'pending') {
     const refreshed = await refreshCardOrder(cfg, row.id);
     if (refreshed) {
       out.payment_url = refreshed.order.payment_url || null;
       out.card_status = refreshed.providerStatus;
       if (refreshed.providerStatus === 'finished') {
-        await creditInvoice(cfg, row.id, { received: refreshed.amount != null ? refreshed.amount : undefined });
-        out.status = 'credited';
-        out.received_amount_xmr = refreshed.amount != null ? refreshed.amount : out.received_amount_xmr;
+        if (typeof providers.provider().withdraw === 'function') {
+          out.card_status = out.card_status || 'withdrawing';
+        } else {
+          await creditInvoice(cfg, row.id, { received: refreshed.amount != null ? refreshed.amount : undefined });
+          out.status = 'credited';
+          out.received_amount_xmr = refreshed.amount != null ? refreshed.amount : out.received_amount_xmr;
+        }
       } else if (['failed', 'refunded'].includes(refreshed.providerStatus)) {
         await voidInvoice(cfg, row.id);
         out.status = 'void';
