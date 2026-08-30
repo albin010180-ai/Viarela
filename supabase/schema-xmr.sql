@@ -1,5 +1,6 @@
 -- Viarela | Monero (XMR) payment schema (Path A: direct XMR, view-only bridge)
 -- RLS: anonymous has NO access; only authenticated admins read; bridge uses service_role to write.
+-- NOTE: supabase/schema-card.sql is ARCHIVED (legacy PSP/card experiment). Do not apply it.
 
 -- 1. Address pool: pre-generated subaddresses that checkout pops synchronously
 create table if not exists xmr_address_pool (
@@ -29,7 +30,8 @@ create table if not exists xmr_invoices (
   tx_hash text,
   expires_at timestamptz not null,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  channel text not null default 'xmr' check (channel in ('xmr','card','psp'))
 );
 
 -- 3. Payments: immutable audit ledger rows (one per detected incoming transfer)

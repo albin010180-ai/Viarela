@@ -139,12 +139,17 @@ Doğrulama akışılar iki katmanlı:
 
 ---
 
-## 8. Senden Gerekli Olanlar (build'e başlamak için)
+## 8. Kurulum (geriye kalan tek parça: cüzdan)
 
-1. **Ana cüzdan**: `monero-wallet-cli` ile oluşturulacak/spend key offline. (İstersen adım adım yönlendireyim.)
-2. **Makine kararı**: ücretsiz benim PC'm / VPS — bridge+node orada çalışacak.
-3. **View key + primary address**: view-only cüzdan için (ana cüzdandan `address` ve `viewkey`'i export edersin) — bu kişisel; dosyada durur, repoya girmez.
-4. **Kur kaynağı onayı**: CoinGecko public API yeterli mi (ücretsiz), yoksa kendi sağladığın kur mu kullanılacak.
+Build ve deploy tamamlandı; canlı sistem fatura API'si `NO_ADDRESS_AVAILABLE` ile 409 dönüyor çünkü adres havuzu boş. Geriye kalan tek adım **köprüyü çalıştırmak**:
+
+1. `services/monero/` klasöründeki `README.md`'yi izle: ana cüzdanı + view-only cüzdanı oluştur.
+2. `config.example.json` → `config.json` kopyala; `supabaseServiceRoleKey` ve wallet-rpc oturumunu doldur.
+3. `npm run doctor` → bu makinede neyin eksik olduğunu söyler.
+4. Cüzdan hazırsa `npm run seed` (50 subaddress → Supabase'e yazar), sonra `start.bat` veya Görev Zamanlayıcı ile sürekli çalıştır.
+5. Test: `/pay/` → "Monero faturası oluştur". Adres görününce sistem fiilen açık.
+
+Kritik dosyalar: `services/monero/xmr-bridge.js` (izleme+onay), `services/monero/doctor.js` (kontrol), `start.bat`/`docker-compose.yml` (çalıştırma).
 
 ---
 

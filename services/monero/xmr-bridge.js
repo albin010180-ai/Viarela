@@ -26,7 +26,7 @@ function loadConfig() {
     pollIntervalSec: raw.pollIntervalSec || 300,
     poolTarget: raw.poolTarget || 50,
     poolMin: raw.poolMin || 10,
-    explicit: Boolean(process.env.XMR_BRIDGE_SEED_ONLY)
+    explicit: process.argv.includes('--seed') || Boolean(process.env.XMR_BRIDGE_SEED_ONLY)
   };
 }
 
@@ -79,11 +79,11 @@ async function sbPost(path, body) {
 }
 
 async function seedPool() {
-  // count unused
-  const used = await sbGet(`/rest/v1/xmr_address_pool?select=id&status=eq.unused`);
-  const have = (used || []).length;
-  const want = cfg.poolTarget - have;
-  if (want <= 0) { log(`[pool] yeterli (${have} boş)`); return; }
+  const rows = await sbGet('/rest/v1/xmr_address_pool?select=address,status');
+  const existing = new Set((rows || []).map(r => r.address));
+  const unused = (rows || []).filter(r => r.status === 'unused').length;
+  const want = cfg.poolTarget - unused;
+  if (want <= 0) { log(`[pool] yeterli (${unused} boş)`); return; }
   log(`[pool] ${want} yeni subaddress üretiliyor…`);
   let res;
   try {
@@ -92,18 +92,21 @@ async function seedPool() {
     log(`[pool] create_address BAŞARISIZ (wallet çalışmıyor olabilir): ${e.message}`);
     return;
   }
-  const addresses = res.addresses || [];
-  if (!addresses.length) { log('[pool] üretilen adres yok'); return; }
-  for (const a of addresses) {
+  let added = 0;
+  for (const a of (res.addresses || [])) {
+    if (existing.has(a.address)) continue;
     try {
       await sbPost('/rest/v1/xmr_address_pool', {
         address: a.address,
         subaddress_index: a.address_index,
         status: 'unused'
-      }).catch(() => {});
-    } catch {}
+      });
+      added++;
+    } catch (e) {
+      log(`[pool] kayıt hatası ${a.address}: ${e.message}`);
+    }
   }
-  log(`[pool] ${addresses.length} adres eklendi (toplam boş: ${have + addresses.length})`);
+  log(`[pool] ${added} adres eklendi (toplam boş: ${unused + added})`);
 }
 
 async function expireOld() {

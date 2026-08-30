@@ -7,7 +7,8 @@
   "main": "xmr-bridge.js",
   "scripts": {
     "start": "node xmr-bridge.js",
-    "seed": "node --env-file-if-exists=.env xmr-bridge.js"
+    "seed": "node xmr-bridge.js --seed",
+    "doctor": "node doctor.js"
   },
   "engines": {
     "node": ">=18"

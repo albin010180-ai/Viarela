@@ -16,5 +16,3 @@ services/monero/*.address.txt
 
 # Unrelated local workspace (user's Binance experiment) - keep out of site repo
 binance-square-bot/
-package.json
-package-lock.json
