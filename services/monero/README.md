@@ -82,15 +82,24 @@ monero-wallet-rpc.exe ... --daemon-address http://node.moneroworld.com:18081
 
 Node'unu **TAILS** (Tor tabanlı canlı sistem, ayrı PC) üzerinde çalıştırıyorsan:
 
-- **Kalıcı depolama şart:** TAILS her kapanışta RAM'i temizler. Taşınmaz depolama (Persistent)
-  özelliğini aç (Applications → "Configure persistent volume" → "Personal Data") ve blockchain
-  verisini `Persistent/` içine koy:
+- **Harici disk şart (örn. `XMRVault`):** TAILS her kapanışta RAM'i temizler; TAILS USB'si 55 GB
+  blockchain için küçük kalırsa zinciri ayrı bir harici diskte tut. Harici diskler TAILS'ta
+  otomatik bağlanmaz, adımlar:
+  1. TAILS başlarken **Yönetici parolası** kur (Welcome → Additional Settings → Administration Password).
+  2. Harici diski tak; Files → disk adı (`XMRVault`) → parolayla **Bağla (Mount)**.
+     → `/media/amnesia/XMRVault` altına gelir (`ls /media/amnesia/XMRVault` ile doğrula).
+  3. `lsblk -f` ile dosya sistemini kontrol et — **FAT32 OLMAYAN** bir fs olmalı (exFAT/NTFS/ext4):
+     monerod'un `data.mdb` dosyası 4 GB'ı aşar, FAT32'de çalışmaz.
+  4. `touch /media/amnesia/XMRVault/t.txt` ile diskin **yazılabilir** olduğunu doğrula.
+- monerod binary'si de harici diskteyse (örn. `/media/amnesia/XMRVault/monero-x86_64-linux-gnu-v0.18.4.2/monerod`):
   ```
-  monerod --prune-blockchain --data-dir /home/amnesia/Persistent/monerod ^
+  /media/amnesia/XMRVault/monero-x86_64-linux-gnu-v0.18.4.2/monerod --prune-blockchain \
+    --data-dir /media/amnesia/XMRVault/monerod \
     --rpc-bind-ip 0.0.0.0 --rpc-bind-port 18081 --no-igd --confirm-external-bind
   ```
-  (Pruned chain ≈ 55 GB. `--rpc-bind-ip 0.0.0.0` yerine TAILS'in LAN IP'sini de yazabilirsin —
-  örneğin `--rpc-bind-ip 192.168.1.50` — LAN dışı istemcileri daha da iyi engeller.)
+  (Pruned chain ≈ 55 GB. `--rpc-bind-ip 0.0.0.0` yerine TAILS'in LAN IP'sini yazabilirsin —
+  örneğin `--rpc-bind-ip 192.168.1.50` — LAN dışı istemcileri daha da iyi engeller. Her kapanışta
+  diski yeniden bağlaman gerekir; zincir `data-dir`'de kalır.)
 - TAILS tüm trafiği Tor üzerinden zorla yönlendirir; monerod ekstra proxy ayarı olmadan senkron olur.
 - **Bu (Windows) makinede:** `start.local.bat` içindeki `DAEMON` değişkenini
   `http://<TAILS-PC-LAN-IP>:18081` yap. Lokal monerod gerekmez.
