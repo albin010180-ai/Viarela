@@ -78,6 +78,24 @@ monero-wallet-rpc.exe ... --daemon-address http://node.moneroworld.com:18081
 - Alternatif public node: `http://xmr.llcoins.net:18081`
 - Gizlilik notu: ödeme, gönderdiğin node sağlayıcısına görünür olabilir. Kalıcı kullanımda kendi node'un daha güvenli.
 
+### 4.1 TAILS'taki kendi node'unla çalışmak (önerilen anonim kurulum)
+
+Node'unu **TAILS** (Tor tabanlı canlı sistem, ayrı PC) üzerinde çalıştırıyorsan:
+
+- **Kalıcı depolama şart:** TAILS her kapanışta RAM'i temizler. Taşınmaz depolama (Persistent)
+  özelliğini aç (Applications → "Configure persistent volume" → "Personal Data") ve blockchain
+  verisini `Persistent/` içine koy:
+  ```
+  monerod --prune-blockchain --data-dir /home/amnesia/Persistent/monerod ^
+    --rpc-bind-ip 0.0.0.0 --rpc-bind-port 18081 --no-igd --confirm-external-bind
+  ```
+  (Pruned chain ≈ 55 GB. `--rpc-bind-ip 0.0.0.0` yerine TAILS'in LAN IP'sini de yazabilirsin —
+  örneğin `--rpc-bind-ip 192.168.1.50` — LAN dışı istemcileri daha da iyi engeller.)
+- TAILS tüm trafiği Tor üzerinden zorla yönlendirir; monerod ekstra proxy ayarı olmadan senkron olur.
+- **Bu (Windows) makinede:** `start.local.bat` içindeki `DAEMON` değişkenini
+  `http://<TAILS-PC-LAN-IP>:18081` yap. Lokal monerod gerekmez.
+- Önce TAILS node'unun yüksekliği (`get_info`) ile bu makinenin aynı ağda olduğunu doğrula.
+
 ---
 
 ## 5. monero-wallet-rpc başlat

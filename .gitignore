@@ -14,5 +14,9 @@ services/monero/data/
 services/monero/*.keys
 services/monero/*.address.txt
 
+# Monero CLI binaries & local launcher (real RPC password)
+services/monero/bin/
+services/monero/start.local.bat
+
 # Unrelated local workspace (user's Binance experiment) - keep out of site repo
 binance-square-bot/
