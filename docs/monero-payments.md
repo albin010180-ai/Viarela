@@ -51,6 +51,12 @@ Kritik tasarım prensibi: **"Kendin izleyebilirsin, dışarıdakiler izleyemez."
 ### 2.3 Ana cüzdan (final / soğuk)
 - `monero-wallet-cli` ile oluştur, spend key'i offline kaydet (kağıt/HW).
 - Aktif kullanım için bu cüzdanın subaddress'leri **önceden** oluşturulur ve wallet-rpc'ye view-only olarak tanıtılır.
+- Sistemin nihai alıcı cüzdan adresi (`config.json` / `config.example.json` → `mainAddress`):
+
+  `88hLyRVCjnE4g4HDWvjJg18pRtBGwii4gcELXEAPJz4KCGnTfdF4kmUYgJqGg35UgiUSF7dcK35AyNYQFjhHbdzSQ3UrJTg`
+
+  (ana ağ subaddress; checksum doğrulanmıştır). Müşteriler bu adrese değil, faturalara özel subaddress'lere öder;
+  hepsi aynı cüzdana akar. `npm run doctor`, bağlı wallet'ın bu adrese ait olduğunu `get_address_index` ile kanıtlar.
 
 ---
 

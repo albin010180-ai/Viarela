@@ -17,6 +17,7 @@ function loadConfig() {
   return {
     supabaseUrl: process.env.SUPABASE_URL || raw.supabaseUrl || '',
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || raw.supabaseServiceRoleKey || '',
+    mainAddress: raw.mainAddress || '',
     wallet: {
       rpcUrl: raw.wallet?.rpcUrl || 'http://127.0.0.1:18283',
       username: raw.wallet?.username || '',
@@ -164,6 +165,17 @@ async function scanIncoming() {
   }
 }
 
+async function verifyMain() {
+  if (!cfg.mainAddress) return;
+  try {
+    const r = await rpc('get_address_index', { address: cfg.mainAddress });
+    if (r.index) log(`[verify] nihai adres cüzdana ait (index ${r.index.major} ${r.index.minor})`);
+    else log('[verify] nihai adres bu cüzdana ait değil! Ana cüzdan adresini kontrol et.');
+  } catch (e) {
+    log(`[verify] nihai adres bu cüzdana ait değil! (${e.message})`);
+  }
+}
+
 async function tick() {
   try {
     await expireOld();
@@ -176,10 +188,12 @@ async function tick() {
 
 const initial = Date.now() + 3000;
 setTimeout(async () => {
+  await verifyMain();
   await tick();
   if (cfg.explicit) { log('[xmr-bridge] seed-only modu tamamlandı.'); process.exit(0); }
   setInterval(tick, cfg.pollIntervalSec * 1000);
   log(`[xmr-bridge] çalışıyor — her ${cfg.pollIntervalSec}s. RPC: ${cfg.wallet.rpcUrl}`);
+  if (cfg.mainAddress) log(`[xmr-bridge] nihai alıcı cüzdan: ${cfg.mainAddress.slice(0, 10)}…${cfg.mainAddress.slice(-6)}`);
 }, Math.max(0, initial - Date.now()));
 
 process.on('SIGINT', () => { log('kapatılıyor'); process.exit(0); });

@@ -35,7 +35,15 @@ async function main() {
   const raw = JSON.parse(readFileSync(cfgPath, 'utf8'));
   const supabaseUrl = process.env.SUPABASE_URL || raw.supabaseUrl || '';
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || raw.supabaseServiceRoleKey || '';
+  const mainAddress = raw.mainAddress || '';
   const { rpcUrl = 'http://127.0.0.1:18283', username = '', password = '' } = raw.wallet || {};
+
+  if (mainAddress) {
+    ok(`nihai alıcı adresi: ${mainAddress}`);
+  } else {
+    bad('mainAddress boş (config.example.json daki nihai cüzdan adresini kopyalayın)');
+    exitCode = 1;
+  }
 
   if (!supabaseUrl || !key) {
     bad('supabaseServiceRoleKey dolu değil (Supabase > Project Settings > API > service_role)');
@@ -85,6 +93,20 @@ async function main() {
         exitCode = 1;
       } else {
         ok(`wallet-rpc erişilebilir (node yüksekliği ${j.result.height})`);
+      }
+      if (mainAddress) {
+        try {
+          const ai = await rpcCall(rpcUrl, `${username}:${password}`, 'get_address_index', { address: mainAddress });
+          if (ai.error) {
+            bad('nihai adres bu cüzdana ait DEĞİL — yanlış (view-only) cüzdan bağlanmış!');
+            exitCode = 1;
+          } else {
+            const idx = ai.result.index || { major: 0, minor: 0 };
+            ok(`nihai adres cüzdana ait (index ${idx.major} ${idx.minor})`);
+          }
+        } catch (e) {
+          info('get_address_index denetlenemedi (RPC sürümü) — adres manuel gözle doğrulansın');
+        }
       }
     } catch (e) {
       bad(`wallet-rpc [${rpcUrl}] bağlantı kurulamadı — wallet-rpc'i başlattınız mı? (README Adım 5)`);

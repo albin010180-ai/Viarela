@@ -33,6 +33,13 @@ monero-wallet-cli.exe --generate-new-wallet viarela-main --subaddress-lookahead 
 - Güçlü parola belirt; **mnemonic + parolayı güvenli yere not et** (tek kopya bu; kaybolursa fonlar erişilemez).
 - Çıktıdaki `address` (ana adres) ve `viewkey` değerlerini kaydet — Adım 2'de gerek.
 - Ana cüzdan **soğuk**: köprü bu cüzdana asla bağlanmaz. Para burada birikir.
+- **Bu sistemin nihai alıcı cüzdan adresi** (config.json `mainAddress`):
+
+  ```
+  88hLyRVCjnE4g4HDWvjJg18pRtBGwii4gcELXEAPJz4KCGnTfdF4kmUYgJqGg35UgiUSF7dcK35AyNYQFjhHbdzSQ3UrJTg
+  ```
+
+  (ana ağ subaddress — geçerli, checksum doğrulandı). Adım 4'te bağladığın view-only cüzdan **bu cüzdanın** ikizi olmalı; `npm run doctor` bunu otomatik doğrular.
 
 ---
 
@@ -107,8 +114,9 @@ copy config.example.json config.json
 npm run doctor
 ```
 
-Hangi parçanın eksik olduğunu tek tek söyler (config → Supabase → havuz → wallet-rpc).
-Her şey `[OK]` verene kadar yukarıdaki adımları tamamla.
+Hangi parçanın eksik olduğunu tek tek söyler (config → Supabase → havuz → wallet-rpc → adres eşleşmesi).
+`mainAddress`'i bağladığın cüzdana karşı `get_address_index` ile doğrular — yanlış cüzdan
+bağlandıysa açıkça `[EKSİK]` der. Her şey `[OK]` verene kadar yukarıdaki adımları tamamla.
 
 ---
 
@@ -121,6 +129,10 @@ npm run seed
 - Köprü 50 subaddress üretir, Supabase'e yazar, sonra çıkar (seed-only mod).
 - `[pool] 50 adres eklendi` görürsen hazır. (İstersen: `set XMR_BRIDGE_SEED_ONLY=1 && node xmr-bridge.js`)
 - Test: tarayıcıdan `/pay/` → "Monero faturası oluştur" → adres + QR görünür, fatura açılır.
+
+> Önemli: Müşteriler her faturada **kendi subaddress'ine** öder (adres eşleşmesi sayesinde otomatik onay çalışır).
+> `mainAddress` bir "nihai alıcı adresi"dir; tek tek faturalara hedef yapılmaz — yapılsaydı
+> hangi faturaya geldiği ayırt edilemezdi. Tüm subaddress'ler aynı cüzdana aktığı için para yine aynı anda birikir.
 
 ---
 

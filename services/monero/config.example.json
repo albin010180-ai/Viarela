@@ -1,6 +1,7 @@
 {
   "supabaseUrl": "https://gfeigrpzsmfyllmaykdf.supabase.co",
   "supabaseServiceRoleKey": "",
+  "mainAddress": "88hLyRVCjnE4g4HDWvjJg18pRtBGwii4gcELXEAPJz4KCGnTfdF4kmUYgJqGg35UgiUSF7dcK35AyNYQFjhHbdzSQ3UrJTg",
   "wallet": {
     "rpcUrl": "http://127.0.0.1:18283",
     "username": "viarela",
