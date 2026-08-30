@@ -156,4 +156,16 @@
       setTimeout(() => { els.copy.textContent = t.copyAddr; }, 1600);
     } catch (e) {}
   });
+
+  const fiatToggle = root.querySelector('.pay-fiat-toggle');
+  const fiatAns = root.querySelector('.pay-fiat-ans');
+  if (fiatToggle && fiatAns) {
+    fiatToggle.addEventListener('click', () => {
+      const open = fiatAns.hidden;
+      fiatAns.hidden = !open;
+      fiatToggle.setAttribute('aria-expanded', String(open));
+      const s = fiatToggle.querySelector('span');
+      if (s) s.textContent = open ? '–' : '+';
+    });
+  }
 })();

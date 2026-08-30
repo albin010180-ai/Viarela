@@ -30,6 +30,17 @@ Tek kanaldır; müşteri hiçbir doğrulama/belge görmez, hesap/üyelik yok. B�
 - `supabase/schema-card.sql` tarihsel kayıt olarak durur; canlıda `xmr_invoices.channel` kolonu (`default 'xmr'`) ve boş `card_orders` tablosu zararsızdır, hiçbir kod yüzeyi tarafından kullanılmaz.
 - Admin `chLabel` yalnızca görsel geriye-dönük eşleme tutar (`xmr` → "XMR", eski `card`→"Kart", `psp`→"Kripto"); toast Monero'ya özeldir.
 
+## Alıcının kart/banka (cc-IBAN) erişimi — satıcı KYC'siz
+
+Alıcı kart ya da IBAN ile ödemek istiyorsa tek yasal ve satıcıyı KYC'siz tutan yol **alıcı-taraflı satın alımdır**:
+
+- Alıcı, kendi borsasında (Kraken/Bitvavo/Binance vb.) kartı veya IBAN'ıyla tam XMR tutarını alır. Borsa hesabı alıcının kendisine aittir; doğrulama varsa orada, asla bizde yapılmaz.
+- Alıcı, XMR'i faturadaki adrese **P2P çekim** yapar. Ödeme asla bir PSP/üçüncü taraf hesabımızdan geçmez.
+- Onay mevcut pipeline ile otomatiktir: bridge subaddress'teki varışı görür → 10 onay → `credited` → SimpleX/admin.
+- Desk'teki "Kredi kartı veya banka havalesiyle öde?" akordeonu bunu 3 adımda anlatır; FAQ/SSS'te aynı karşılık verilir.
+
+**Neden üçüncü taraf widget/on-ramp değil:** kart/IBAN on-ramp sağlayıcıları entegrasyon için işletme hesabı/KYB ister ve widget'ta para genellikle işletmenin mutabakatlı hesabına düşer — "satıcı hiçbir yerde doğrulanmaz" şartını bozar. Saf P2P XMR akışı bu şartı garantiler.
+
 ## Yine geçerli dürüst sınır
 
 Saf doğrudan XMR, para kabulünün en yüksek gizlilik ve sıfır doğrulama seviyesidir; ancak kripto gelirinin vergi bildirimi/KYC-AML yükümlülüğü işletene aittir ve bridge ürettiği mutabakatla (tutar+bağlantılı subaddress+zaman) denetim tarafını karşılar.

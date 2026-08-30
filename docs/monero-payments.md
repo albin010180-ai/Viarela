@@ -155,6 +155,7 @@ Kart/SEPA/banka havalesi ve tüm PSP katmanları (NowPayments/ChangeNOW/Guardari
 - `api/card/` silindi; `/api/card/config/` ve `/api/card/order/` 404 döner.
 - `xmr_invoices.channel` yalnızca `'xmr'` üretir; eski `'card'/'psp'` kolon değerleri kodda görsel geriye-dönük eşleme olarak tolere edilir (yok sayılır).
 - Bridge krediyi yeniden **tutar-eşleşmeli** verir (kanal istisnası yok): beklenen tutara ≤%2 eşit ya da üzerindeki onaylanmış (10 onay) varış `credited` olur.
+- **cc/IBAN erişimi:** alıcı kendi borsasında kartı/IBAN'ıyla XMR satın alıp P2P çekim yapar; satıcı hiçbir yerde doğrulanmaz (bkz. `docs/card-payments.md`). On-ramp widget entegrasyonu işletme KYB'si ister ve şartı bozar — kullanılmaz.
 - Detay: `docs/card-payments.md`.
 
 ---

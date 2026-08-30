@@ -428,6 +428,13 @@ footer{margin-top:90px;background:#062c50;color:#fff}
 .pay-card .note{font-size:.9rem;color:var(--muted)}
 .pay-card .note.is-ok{color:var(--green,#0a7c3e);font-weight:800}
 .pay-card .note[data-xmr-error]:not([hidden]){color:#9b2c2c;font-weight:800;font-size:.86rem}
+.pay-fiat{margin-top:14px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+.pay-fiat-toggle{border:0;background:none;width:100%;text-align:left;padding:13px 16px;font-weight:850;color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.pay-fiat-toggle span{color:var(--blue);font-weight:900}
+.pay-fiat-ans{padding:0 16px 14px;color:var(--muted);font-size:.9rem}
+.pay-fiat-ans ol{margin:0 0 0 18px;padding:0}
+.pay-fiat-ans li{margin-bottom:8px}
+.pay-fiat-ans li:last-child{margin-bottom:0}
 .pay-qr-wrap img{display:block}
 .pay-row-warn .btn{width:auto;margin:0;padding:8px 12px;font-size:.8rem}
 @media(max-width:980px){
