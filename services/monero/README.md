@@ -36,7 +36,7 @@ monero-wallet-cli.exe --generate-new-wallet viarela-main --subaddress-lookahead 
 - **Bu sistemin nihai alıcı cüzdan adresi** (config.json `mainAddress`):
 
   ```
-  88hLyRVCjnE4g4HDWvjJg18pRtBGwii4gcELXEAPJz4KCGnTfdF4kmUYgJqGg35UgiUSF7dcK35AyNYQFjhHbdzSQ3UrJTg
+  86bdB855xJH3NV6atLBwajS5BAz1S4uYLL6PTx9tnrHXY1QSfU6umgz7qaKF5Gr1j6X6ohtbx6vQMhXU3skH5g5RF6GEBmV
   ```
 
   (ana ağ subaddress — geçerli, checksum doğrulandı). Adım 4'te bağladığın view-only cüzdan **bu cüzdanın** ikizi olmalı; `npm run doctor` bunu otomatik doğrular.

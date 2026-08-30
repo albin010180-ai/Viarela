@@ -9,7 +9,7 @@ cd /d "%~dp0"
 
 REM Uzak node (TAILS PC) ile olustur: DAEMON adresi, TAILS PC'nin LAN IP'si.
 REM (Ornek: set DAEMON=http://192.168.1.50:18081)
-set DAEMON=http://127.0.0.1:18081
+set DAEMON=http://192.168.1.197:18081
 
 REM Performans: sync'i cuzdanin ilk kullanim anindan baslat. Gerekirse ELEDEK YUKARIDAKI
 REM satira ekle: --restore-height <bugunku-yukseklik>   (orn. --restore-height 34000000)
