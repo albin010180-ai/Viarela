@@ -75,8 +75,12 @@ async function sbPatch(path, body) {
 
 async function sbPost(path, body) {
   const r = await fetch(cfg.supabaseUrl + path, { method: 'POST', headers: hdr(), body: JSON.stringify(body) });
-  if (!r.ok) throw new Error(`supabase POST ${path} -> ${r.status}`);
-  return r.json();
+  if (!r.ok) {
+    const txt = await r.text().catch(() => '');
+    throw new Error(`supabase POST ${path} -> ${r.status} ${txt.slice(0, 200)}`);
+  }
+  const txt = await r.text();
+  return txt ? JSON.parse(txt) : {};
 }
 
 async function seedPool() {
@@ -94,17 +98,21 @@ async function seedPool() {
     return;
   }
   let added = 0;
-  for (const a of (res.addresses || [])) {
-    if (existing.has(a.address)) continue;
+  const addrs = res.addresses || [];
+  const indices = res.address_indices || [];
+  for (let i = 0; i < addrs.length; i++) {
+    const addr = typeof addrs[i] === 'string' ? addrs[i] : addrs[i].address;
+    if (!addr || existing.has(addr)) continue;
+    const idx = indices[i] || res.address_index + i;
     try {
       await sbPost('/rest/v1/xmr_address_pool', {
-        address: a.address,
-        subaddress_index: a.address_index,
+        address: addr,
+        subaddress_index: idx,
         status: 'unused'
       });
       added++;
     } catch (e) {
-      log(`[pool] kayıt hatası ${a.address}: ${e.message}`);
+      log(`[pool] kayıt hatası ${addr}: ${e.message}`);
     }
   }
   log(`[pool] ${added} adres eklendi (toplam boş: ${unused + added})`);

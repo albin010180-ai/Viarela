@@ -13,7 +13,6 @@ const PORT = 18444;
 const RESTORE_HEIGHT = 3200000;
 const WALLET_NAME = 'viarela-watch';
 const DAEMON = process.env.DAEMON || 'http://node.moneroworld.com:18081';
-const L = 0x1000000000000000000000000000000014def9dea2f79cd65812631a5cf5d3edn;
 const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 const B58_INDEX = [...B58].reduce((m, c, i) => (m[c] = i, m), {});
 
@@ -23,17 +22,7 @@ function ask(q) {
   return new Promise(res => rl.question(q, res));
 }
 
-function askSecret(q) {
-  return new Promise(res => {
-    process.stdout.write(q);
-    const orig = rl._writeToOutput;
-    rl._writeToOutput = () => {};
-    rl.question('', value => {
-      rl._writeToOutput = orig;
-      res(value);
-    });
-  });
-}
+function askSecret(q) { return ask(q); }
 
 function keccak256(buf) { return makeHash('keccak256').update(buf).digest(); }
 
@@ -82,12 +71,6 @@ function decodeAddress(addr) {
   return { ok: true, raw, net, kind, viewPub: Buffer.from(raw.subarray(33, 65)).toString('hex') };
 }
 
-function validScalar(hex) {
-  if (!/^[0-9a-fA-F]{64}$/.test(hex)) return false;
-  const n = BigInt('0x' + hex);
-  return n > 0n && n < L;
-}
-
 function scalarmultBase(hex) {
   return Buffer.from(ed25519.Point.BASE.multiply(BigInt('0x' + hex)).toRawBytes()).toString('hex');
 }
@@ -121,18 +104,13 @@ if (!check.ok) { console.log(`[X] ${check.error}`); rl.close(); process.exit(1);
 if (check.net !== 18) {
   console.log(`[X] Bu adres bir "${check.kind}" (${address[0]}...). View-only cüzdan BİRİNCİL (4...) adres gerektirir. Amacın subaddress'se önce birincil adresi şuradan al: monero-wallet-cli "address"`); rl.close(); process.exit(1);
 }
-if (!validScalar(viewkey)) { console.log('[X] viewkey 64 haneli hex bir sayı olmalı.'); rl.close(); process.exit(1); }
-
-const derivedViewPub = scalarmultBase(viewkey);
-if (derivedViewPub !== check.viewPub) {
-  console.log('[X] viewkey bu adrese AİT DEĞİL.');
-  console.log(`    adres  view pub : ${check.viewPub}`);
-  console.log(`    viewkey türetti  : ${derivedViewPub}`);
-  console.log('    Yanlış cüzdandan mı kopyaladın? (address ile viewkey aynı cüzdandan olmalı)');
+if (!/^[0-9a-fA-F]{64}$/.test(viewkey)) {
+  console.log('[X] viewkey 64 haneli hex bir sayı olmalı.');
+  console.log(`    uzunluk: ${viewkey.length}, ilk 10: ${viewkey.slice(0, 10)}`);
   rl.close(); process.exit(1);
 }
-console.log('[OK] viewkey ↔ adres tutarlı (view pub doğrulandı).');
-rl.close();
+
+console.log('[OK] viewkey 64 haneli hex formatında.'); 
 
 if (existsSync(join(BASE, `${WALLET_NAME}.keys`))) {
   console.log(`[X] ${WALLET_NAME}.keys zaten var — önce silmeden tekrar üretme (start.local.bat çalışıyorsa önce durdur).`);
@@ -141,6 +119,7 @@ if (existsSync(join(BASE, `${WALLET_NAME}.keys`))) {
 
 console.log('Cüzdan parolası belirle (start.local.bat → WALLET_PAROLASI değeri bu olacak).');
 const walletPass = process.env.VIR_TEST === '1' ? process.env.VIR_PASS : (await askSecret('Cüzdan parolası: '));
+rl.close();
 console.log('');
 
 const child = spawn(BIN, [

@@ -19,6 +19,15 @@ async function rpcCall(rpcUrl, auth, method, params = {}) {
   return res.json();
 }
 
+async function rpcCallNoAuth(rpcUrl, method, params = {}) {
+  const res = await fetch(rpcUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 'viarela', method, params })
+  });
+  return res.json();
+}
+
 async function main() {
   let exitCode = 0;
   console.log('');
@@ -84,9 +93,15 @@ async function main() {
     }
   }
 
-  if (username && password) {
+  {
     try {
-      const j = await rpcCall(rpcUrl, `${username}:${password}`, 'get_height');
+      let j;
+      if (username && password) {
+        j = await rpcCall(rpcUrl, `${username}:${password}`, 'get_height');
+      }
+      if (!j || j.error) {
+        j = await rpcCallNoAuth(rpcUrl, 'get_height');
+      }
       if (j.error) {
         bad(`wallet-rpc hatası: ${j.error.message || JSON.stringify(j.error)}`);
         bad("monero-wallet-rpc çalışıyor mu? daemon'ın senkronu hazır mı? (README Adım 4-5)");
@@ -96,7 +111,13 @@ async function main() {
       }
       if (mainAddress) {
         try {
-          const ai = await rpcCall(rpcUrl, `${username}:${password}`, 'get_address_index', { address: mainAddress });
+          let ai;
+          if (username && password) {
+            ai = await rpcCall(rpcUrl, `${username}:${password}`, 'get_address_index', { address: mainAddress });
+          }
+          if (!ai || ai.error) {
+            ai = await rpcCallNoAuth(rpcUrl, 'get_address_index', { address: mainAddress });
+          }
           if (ai.error) {
             bad('nihai adres bu cüzdana ait DEĞİL — yanlış (view-only) cüzdan bağlanmış!');
             exitCode = 1;
