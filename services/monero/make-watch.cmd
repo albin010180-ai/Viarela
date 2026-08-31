@@ -7,17 +7,18 @@ REM Bu betik PAROLLARI terminale sen yapistirirsin; hicbir yere yazilmaz, limite
 setlocal
 cd /d "%~dp0"
 
-REM Uzak node (TAILS PC) ile olustur: DAEMON adresi, TAILS PC'nin LAN IP'si.
-REM (Ornek: set DAEMON=http://192.168.1.50:18081)
-set DAEMON=http://192.168.1.197:18081
+REM Node secimi:
+REM   A) Public node (monerod GEREKMEZ) : set DAEMON=http://node.moneroworld.com:18081
+REM   B) Kendi node'un (TAILS PC)      : set DAEMON=http://192.168.1.197:18081
+set DAEMON=http://node.moneroworld.com:18081
 
 REM Performans: sync'i cuzdanin ilk kullanim anindan baslat. Gerekirse ELEDEK YUKARIDAKI
-REM satira ekle: --restore-height <bugunku-yukseklik>   (orn. --restore-height 34000000)
+REM satira ekle: --restore-height <bugunku-yukseklik>   (orn. --restore-height 4000000)
 echo.
 echo Viarela watch (view-only) cuzdani olusturuluyor.
 echo Ana cuzdanin address + viewkey degerlerini gireceksin, sonra cuzdan sifresi.
 echo.
-bin\monero-wallet-cli.exe --generate-from-view-key viarela-watch --daemon-address %DAEMON% --subaddress-lookahead 2:500 --restore-height 0
+bin\monero-wallet-cli.exe --generate-from-view-key viarela-watch --daemon-address %DAEMON% --subaddress-lookahead 2:500 --restore-height 3200000
 
 if not exist "%~dp0viarela-watch.keys" (
   echo.
