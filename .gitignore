@@ -13,6 +13,8 @@ services/monero/.env
 services/monero/data/
 services/monero/*.keys
 services/monero/*.address.txt
+services/monero/viarela-watch
+services/monero/viarela-watch.*
 
 # Monero CLI binaries & local launcher (real RPC password)
 services/monero/bin/

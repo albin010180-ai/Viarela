@@ -1,0 +1,9 @@
+{
+  "name": "viarela-monero-tools",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "keccak": "^3.0.4",
+    "@noble/curves": "^1.4.0"
+  }
+}

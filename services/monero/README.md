@@ -45,12 +45,26 @@ monero-wallet-cli.exe --generate-new-wallet viarela-main --subaddress-lookahead 
 
 ## 2. Gözcü (view-only) cüzdanı oluştur
 
+**Önerilen yol (Defender'dan bağımsız, `monero-wallet-cli` gerekmez):**
+
+```
+make-watch-rpc.cmd
+```
+
+- Senden `address` (birincil, 4...) + `viewkey` (private view key) ister; **önce viewkey'in adrese ait olduğunu
+  matematiksel olarak doğrular** (yanlış kopyalamada hatalı cüzdan üretmez), sonra `generate_from_keys` ile
+  `viarela-watch.keys`'i oluşturur. viewkey/parola hiçbir dosyaya yazılmaz (yalnızca localhost RPC'ye gider).
+- Gereken bağımlılıklar: `tools` → `npm install` (bir kez).
+
+**Alternatif (CLI):**
 ```
 monero-wallet-cli.exe --generate-from-view-key viarela-watch
 ```
 
 - Adım 1'deki `address` + `viewkey`'i gir, parola belirt.
 - `viarela-watch` dosyası, köprünün **dokunduğu tek cüzdandır** (harcama anahtarı yok → fon riski sıfır).
+- Not: Windows Defender bazı sürümlerde imzasız `monero-wallet-cli.exe`'yi çalıştırmaktan alıkoyar; engellenirse
+  `make-watch-rpc.cmd` yolunu kullan ya da `services/monero/bin` klasörüne Defender dışlaması ekle.
 
 ---
 
