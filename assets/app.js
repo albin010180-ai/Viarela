@@ -94,6 +94,14 @@ if(form){
     const summary=lines.map(([k,v])=>`${k}: ${v||'-'}`).join('\n');
     const box=form.querySelector('.summary-box'); box.classList.add('show'); box.querySelector('pre').textContent=summary; box.dataset.summary=summary;
     const payload={first_name:d.get('first_name'),last_name:d.get('last_name'),phone:d.get('phone'),gender_identity:d.get('gender_identity'),relationship_status:d.get('relationship_status'),nationality:d.get('nationality'),partner_nationality:d.get('partner_nationality'),destination:d.get('destination'),package:q?q.package:null,fee:q?q.fee:null,service:d.get('service'),previous_refusal:d.get('previous_refusal'),message:d.get('message'),website:d.get('website'),lang};
+    const packName=(q&&q.package||'').toLowerCase();
+    const packId=packName.includes('unity')?'unity':packName.includes('signature')?'signature':packName.includes('continental')?'continental':'horizon';
+    try{localStorage.setItem('viarela_selected_package',packId)}catch(err){}
+    form.querySelectorAll('a[href*="/pay/"],a[href*="/odeme/"]').forEach(a=>{
+      const href=a.getAttribute('href')||'';
+      const base=href.split('?')[0];
+      a.setAttribute('href',base+'?package='+encodeURIComponent(packId));
+    });
     try{await fetch('/api/cases/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})}catch(err){}
   });
   form.querySelector('[data-copy]')?.addEventListener('click',async e=>{

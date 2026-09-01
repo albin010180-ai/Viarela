@@ -46,6 +46,7 @@
     error: q('[data-xmr-error]')
   };
 
+  const FEES = { horizon: 7500, continental: 10000, signature: 15000, unity: 20000 };
   let packId = 'horizon';
   let invoiceId = null;
   let pollTick = null;
@@ -58,12 +59,24 @@
     return new Intl.NumberFormat(lang === 'tr' ? 'tr-TR' : 'en-US', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
   }
 
-  root.querySelectorAll('[data-pack]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      packId = btn.dataset.pack;
-      root.querySelectorAll('[data-pack]').forEach(b => b.classList.toggle('is-on', b === btn));
-    });
+  const packBtns = [...root.querySelectorAll('[data-pack]')];
+  const packEur = q('[data-pack-eur]');
+
+  function selectPack(id) {
+    if (!FEES[id]) id = 'horizon';
+    packId = id;
+    try { localStorage.setItem('viarela_selected_package', packId); } catch (e) {}
+    packBtns.forEach(b => b.classList.toggle('is-on', b.dataset.pack === packId));
+    if (packEur) packEur.textContent = fmtMoney(FEES[packId]);
+  }
+
+  packBtns.forEach(btn => {
+    btn.addEventListener('click', () => selectPack(btn.dataset.pack));
   });
+
+  const urlPack = new URLSearchParams(window.location.search).get('package');
+  const storedPack = (() => { try { return localStorage.getItem('viarela_selected_package'); } catch (e) { return null; } })();
+  selectPack(urlPack || storedPack || 'horizon');
 
   els.create.addEventListener('click', async () => {
     if (els.error) { els.error.textContent = ''; els.error.hidden = true; }
