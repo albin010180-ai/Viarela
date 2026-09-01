@@ -77,12 +77,15 @@
     <aside class="pay-card">
       <label>Package</label>
       <div class="pay-pills">
-        <button type="button" class="is-on" data-pack="horizon">Horizon</button>
+        <button type="button" data-pack="horizon">Horizon</button>
         <button type="button" data-pack="continental">Continental</button>
         <button type="button" data-pack="signature">Signature</button>
         <button type="button" data-pack="unity">Unity</button>
       </div>
-      <p class="pay-selected"><small>Selected amount</small><strong data-pack-eur>—</strong></p>
+      <div class="pay-selected">
+        <div><small>Selected package</small><strong data-pack-name>—</strong></div>
+        <div><small>Amount due</small><strong data-pack-eur>—</strong></div>
+      </div>
 
       <p class="note">Fee-free. Send from any Monero wallet; confirmation is automatic. A fresh address is created for each invoice.</p>
       <button class="btn btn-dark" type="button" data-xmr-create>Create Monero invoice</button>
@@ -131,7 +134,7 @@
 </footer>
 
 <a class="chat-fab" href="/contact/">Contact</a>
-<script src="../assets/app.js" defer></script>
-<script src="../assets/pay.js" defer></script>
+<script src="../assets/app.js?v=3" defer></script>
+<script src="../assets/pay.js?v=3" defer></script>
 </body>
 </html>

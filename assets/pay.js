@@ -47,6 +47,7 @@
   };
 
   const FEES = { horizon: 7500, continental: 10000, signature: 15000, unity: 20000 };
+  const NAMES = { horizon: 'Horizon', continental: 'Continental', signature: 'Signature', unity: 'Unity Netherlands' };
   let packId = 'horizon';
   let invoiceId = null;
   let pollTick = null;
@@ -61,13 +62,25 @@
 
   const packBtns = [...root.querySelectorAll('[data-pack]')];
   const packEur = q('[data-pack-eur]');
+  const packName = q('[data-pack-name]');
+
+  function readQuote() {
+    try { return JSON.parse(localStorage.getItem('viarela_quote') || 'null'); } catch (e) { return null; }
+  }
 
   function selectPack(id) {
     if (!FEES[id]) id = 'horizon';
     packId = id;
-    try { localStorage.setItem('viarela_selected_package', packId); } catch (e) {}
+    const quote = readQuote();
+    const fee = (quote && quote.packId === packId && quote.fee) || FEES[packId];
+    const label = (quote && quote.packId === packId && quote.package) || NAMES[packId];
+    try {
+      localStorage.setItem('viarela_selected_package', packId);
+      localStorage.setItem('viarela_quote', JSON.stringify({ packId, package: label, fee }));
+    } catch (e) {}
     packBtns.forEach(b => b.classList.toggle('is-on', b.dataset.pack === packId));
-    if (packEur) packEur.textContent = fmtMoney(FEES[packId]);
+    if (packEur) packEur.textContent = fmtMoney(fee);
+    if (packName) packName.textContent = label;
   }
 
   packBtns.forEach(btn => {
@@ -75,8 +88,9 @@
   });
 
   const urlPack = new URLSearchParams(window.location.search).get('package');
+  const quote = readQuote();
   const storedPack = (() => { try { return localStorage.getItem('viarela_selected_package'); } catch (e) { return null; } })();
-  selectPack(urlPack || storedPack || 'horizon');
+  selectPack(urlPack || (quote && quote.packId) || storedPack || 'horizon');
 
   els.create.addEventListener('click', async () => {
     if (els.error) { els.error.textContent = ''; els.error.hidden = true; }

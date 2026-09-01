@@ -7,6 +7,30 @@ document.querySelectorAll('.faq button').forEach(b=>b.addEventListener('click',(
 const DATA={"United States": {"fee": 15000, "package": "Signature", "slug": "united-states"}, "Canada": {"fee": 15000, "package": "Signature", "slug": "canada"}, "United Kingdom": {"fee": 15000, "package": "Signature", "slug": "united-kingdom"}, "Germany": {"fee": 15000, "package": "Signature", "slug": "germany"}, "Switzerland": {"fee": 15000, "package": "Signature", "slug": "switzerland"}, "Belgium": {"fee": 15000, "package": "Signature", "slug": "belgium"}, "Austria": {"fee": 10000, "package": "Continental", "slug": "austria"}, "Lithuania": {"fee": 10000, "package": "Continental", "slug": "lithuania"}, "Latvia": {"fee": 10000, "package": "Continental", "slug": "latvia"}, "Estonia": {"fee": 10000, "package": "Continental", "slug": "estonia"}, "Poland": {"fee": 10000, "package": "Continental", "slug": "poland"}, "Russia": {"fee": 7500, "package": "Horizon", "slug": "russia"}, "Bulgaria": {"fee": 7500, "package": "Horizon", "slug": "bulgaria"}, "Romania": {"fee": 7500, "package": "Horizon", "slug": "romania"}, "Moldova": {"fee": 7500, "package": "Horizon", "slug": "moldova"}, "Netherlands": {"fee": 20000, "package": "Unity Netherlands", "slug": "netherlands"}};
 function money(n,lang='en'){return new Intl.NumberFormat(lang==='tr'?'tr-TR':'en-US',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n)}
 function quote(country){if(!country||!DATA[country]) return null; return DATA[country];}
+function packIdFromQuote(q){
+  const n=(q&&q.package||'').toLowerCase();
+  if(n.includes('unity')) return 'unity';
+  if(n.includes('signature')) return 'signature';
+  if(n.includes('continental')) return 'continental';
+  return 'horizon';
+}
+function persistQuote(q){
+  if(!q) return;
+  const packId=packIdFromQuote(q);
+  try{
+    localStorage.setItem('viarela_selected_package',packId);
+    localStorage.setItem('viarela_quote',JSON.stringify({packId,package:q.package,fee:q.fee}));
+  }catch(err){}
+  return packId;
+}
+function applyPayLinks(packId){
+  if(!packId) return;
+  document.querySelectorAll('a[href*="/pay/"],a[href*="/odeme/"]').forEach(a=>{
+    const href=a.getAttribute('href')||'';
+    const base=href.split('?')[0];
+    a.setAttribute('href',base+'?package='+encodeURIComponent(packId));
+  });
+}
 
 document.querySelectorAll('[data-calculator]').forEach(calc=>{
   const country=calc.querySelector('[name=calc_country]'), result=calc.querySelector('.calc-result'),
@@ -14,6 +38,7 @@ document.querySelectorAll('[data-calculator]').forEach(calc=>{
   function update(){
     if(!country.value){result.hidden=true;return}
     const q=quote(country.value); result.hidden=false; price.textContent=money(q.fee,lang); label.textContent=q.package;
+    const packId=persistQuote(q); applyPayLinks(packId);
   }
   country.addEventListener('change',update); update();
 });
@@ -71,9 +96,10 @@ if(form){
 
   const dest=form.querySelector('[name=destination]'), packageBox=form.querySelector('[data-package-preview]');
   function updatePackage(){
-    if(!dest?.value||!DATA[dest.value]){packageBox.textContent='';return}
+    if(!dest?.value||!DATA[dest.value]){if(packageBox) packageBox.textContent='';return}
     const lang=form.dataset.lang||'en', q=quote(dest.value);
-    packageBox.innerHTML=`<strong>${q.package}</strong><br>${money(q.fee,lang)}`;
+    if(packageBox) packageBox.innerHTML=`<strong>${q.package}</strong><br>${money(q.fee,lang)}`;
+    const packId=persistQuote(q); applyPayLinks(packId);
   }
   dest?.addEventListener('change',updatePackage); updatePackage();
 
@@ -94,14 +120,7 @@ if(form){
     const summary=lines.map(([k,v])=>`${k}: ${v||'-'}`).join('\n');
     const box=form.querySelector('.summary-box'); box.classList.add('show'); box.querySelector('pre').textContent=summary; box.dataset.summary=summary;
     const payload={first_name:d.get('first_name'),last_name:d.get('last_name'),phone:d.get('phone'),gender_identity:d.get('gender_identity'),relationship_status:d.get('relationship_status'),nationality:d.get('nationality'),partner_nationality:d.get('partner_nationality'),destination:d.get('destination'),package:q?q.package:null,fee:q?q.fee:null,service:d.get('service'),previous_refusal:d.get('previous_refusal'),message:d.get('message'),website:d.get('website'),lang};
-    const packName=(q&&q.package||'').toLowerCase();
-    const packId=packName.includes('unity')?'unity':packName.includes('signature')?'signature':packName.includes('continental')?'continental':'horizon';
-    try{localStorage.setItem('viarela_selected_package',packId)}catch(err){}
-    form.querySelectorAll('a[href*="/pay/"],a[href*="/odeme/"]').forEach(a=>{
-      const href=a.getAttribute('href')||'';
-      const base=href.split('?')[0];
-      a.setAttribute('href',base+'?package='+encodeURIComponent(packId));
-    });
+    const packId=persistQuote(q); applyPayLinks(packId);
     try{await fetch('/api/cases/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})}catch(err){}
   });
   form.querySelector('[data-copy]')?.addEventListener('click',async e=>{
